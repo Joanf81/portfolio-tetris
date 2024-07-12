@@ -6,7 +6,7 @@ function App() {
     <>
       <div className="bg-white">
         <Board>
-          <ActivePiece />
+          <ActivePiece positionX={2} positionY={1} />
         </Board>
       </div>
     </>
