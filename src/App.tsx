@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useRef } from "react";
 
-import { boardColsNumber, refreshRate } from "./config";
+import { boardColsNumber, boardRowsNumber, refreshRate } from "./config";
 
 import Board from "./components/Board";
 import ActivePiece from "./components/ActivePiece";
 
 function App() {
+  const gameTimerID = useRef<number>(0);
   const startedGame = useRef<boolean>(false);
   const activePieceXSize = useRef<number>(0);
   const activePieceYSize = useRef<number>(0);
@@ -16,7 +17,7 @@ function App() {
 
   function newActivePieceCallback(xSize: number, ySize: number) {
     activePieceXSize.current = xSize;
-    // activePieceYSize.current = ySize;
+    activePieceYSize.current = ySize;
   }
 
   function movePieceRight() {
@@ -51,24 +52,34 @@ function App() {
     }
   }
 
+  function detectCollision() {
+    // Collision againt board limit
+    if (pieceY + activePieceYSize.current >= boardRowsNumber - 1) {
+      pauseGame();
+    }
+  }
+
   function gameLoop() {
     setPieceY((oldYPosition) => {
-      console.log(oldYPosition);
-      let newYPosition = oldYPosition;
-      newYPosition += 1;
-
-      return newYPosition;
+      return oldYPosition + 1;
     });
+  }
+
+  function pauseGame() {
+    if (startedGame.current) {
+      clearInterval(gameTimerID.current);
+    }
   }
 
   function startGame() {
     if (!startedGame.current) {
       startedGame.current = true;
-      setInterval(gameLoop, refreshRate);
+      gameTimerID.current = setInterval(gameLoop, refreshRate);
     }
   }
 
   startGame();
+  detectCollision();
 
   return (
     <div tabIndex={1} className="bg-white" onKeyDown={handleKeyDown}>
