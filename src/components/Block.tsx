@@ -1,5 +1,5 @@
 import { blockSize } from "./../config";
-import { blockType } from "../types";
+import { TaildWindClass, blockType } from "../types";
 
 interface BlockProps {
   type: blockType;
@@ -14,8 +14,8 @@ export default function Block({
   positionX,
   positionY,
 }: BlockProps) {
-  let block;
-  let absoluteClass;
+  let absoluteClass: TaildWindClass = "";
+  let colorClass: TaildWindClass;
 
   const x = (positionX || 0) * blockSize;
   const y = (positionY || 0) * blockSize;
@@ -32,30 +32,19 @@ export default function Block({
 
   switch (type) {
     case "red":
-      block = (
-        <div
-          style={style}
-          className={`${absoluteClass} w-[var(--block-size)] h-[var(--block-size)] border-4 border-red-800 bg-red-600`}
-        ></div>
-      );
+      colorClass = "border-4 border-red-800 bg-red-600";
       break;
     case "border":
-      block = (
-        <div
-          style={style}
-          className={`${absoluteClass} w-[var(--block-size)] h-[var(--block-size)] border-4 border-slate-600 bg-slate-400`}
-        ></div>
-      );
+      colorClass = "border-4 border-slate-600 bg-slate-400";
       break;
     case "empty":
-      block = (
-        <div
-          style={style}
-          className={`${absoluteClass} w-[var(--block-size)] h-[var(--block-size)] bg-black`}
-        ></div>
-      );
-      break;
+      colorClass = "bg-black";
   }
 
-  return block;
+  return (
+    <div
+      style={style}
+      className={`${absoluteClass} w-[var(--block-size)] h-[var(--block-size)] ${colorClass}`}
+    ></div>
+  );
 }

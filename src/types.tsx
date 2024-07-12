@@ -8,3 +8,6 @@ export type PieceMap = Piece[][];
 // Piece type:
 export type PieceType = "red";
 export type blockType = PieceType | "empty" | "border";
+
+// Other
+export type TaildWindClass = string;
