@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useRef } from "react";
 
-import { boardColsNumber } from "./config";
+import { boardColsNumber, refreshRate } from "./config";
 
 import Board from "./components/Board";
 import ActivePiece from "./components/ActivePiece";
 
 function App() {
+  const startedGame = useRef<boolean>(false);
   const activePieceXSize = useRef<number>(0);
   const activePieceYSize = useRef<number>(0);
 
   const [pieceX, setPieceX] = useState<number>(1);
+  const [pieceY, setPieceY] = useState<number>(1);
 
   function newActivePieceCallback(xSize: number, ySize: number) {
     activePieceXSize.current = xSize;
@@ -49,12 +51,31 @@ function App() {
     }
   }
 
+  function gameLoop() {
+    setPieceY((oldYPosition) => {
+      console.log(oldYPosition);
+      let newYPosition = oldYPosition;
+      newYPosition += 1;
+
+      return newYPosition;
+    });
+  }
+
+  function startGame() {
+    if (!startedGame.current) {
+      startedGame.current = true;
+      setInterval(gameLoop, refreshRate);
+    }
+  }
+
+  startGame();
+
   return (
     <div tabIndex={1} className="bg-white" onKeyDown={handleKeyDown}>
       <Board>
         <ActivePiece
           positionX={pieceX}
-          positionY={1}
+          positionY={pieceY}
           onNewPiece={newActivePieceCallback}
         />
       </Board>
