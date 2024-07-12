@@ -5,11 +5,13 @@ import Block from "./Block";
 interface ActivePieceProps {
   positionX: number;
   positionY: number;
+  onNewPiece(xSize: number, ySize: number): void;
 }
 
 export default function ActivePiece({
   positionX,
   positionY,
+  onNewPiece,
 }: ActivePieceProps) {
   const x = positionX * blockSize;
   const y = positionY * blockSize;
@@ -18,6 +20,8 @@ export default function ActivePiece({
     "--position-x": `${x}px`,
     "--position-y": `${y}px`,
   } as React.CSSProperties;
+
+  onNewPiece(3, 2);
 
   return (
     <div
