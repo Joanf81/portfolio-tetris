@@ -5,15 +5,29 @@ import {
   boardColsNumber as colsNumber,
 } from "../config";
 import Block from "./Block";
+import { blockType } from "../types";
 
-export default function Board({ children }: PropsWithChildren) {
-  const board: number[][] = [];
+interface boardProps {
+  board: blockType[][];
+}
 
-  for (let i = 0; i < rowsNumber; i++) {
-    board[i] = [];
-    for (let j = 0; j < colsNumber; j++) {
-      board[i][j] = 0;
-    }
+export default function Board({
+  children,
+  board,
+}: PropsWithChildren<boardProps>) {
+  function renderBoard() {
+    return board.map((row, x) => {
+      return row.map((element, y) => {
+        // If border
+        if (y == 0 || x == 0 || y == colsNumber - 1 || x == rowsNumber - 1) {
+          return <Block type="border" />;
+        } else if (element === "red") {
+          return <Block type="red" />;
+        } else {
+          return <Block type="empty" />;
+        }
+      });
+    });
   }
 
   return (
@@ -24,21 +38,7 @@ export default function Board({ children }: PropsWithChildren) {
           colsNumber * 40
         }px]`}
       >
-        {board.map((row, x) => {
-          return row.map((element, y) => {
-            // If border
-            if (
-              y == 0 ||
-              x == 0 ||
-              y == colsNumber - 1 ||
-              x == rowsNumber - 1
-            ) {
-              return <Block type="border" />;
-            } else {
-              return <Block type="background" />;
-            }
-          });
-        })}
+        {renderBoard()}
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 import { blockSize } from "./../config";
+import { blockType } from "../types";
 
 interface BlockProps {
-  type: "border" | "background" | "red";
+  type: blockType;
   absolute?: boolean;
   positionX?: number;
   positionY?: number;
@@ -46,7 +47,7 @@ export default function Block({
         ></div>
       );
       break;
-    case "background":
+    case "empty":
       block = (
         <div
           style={style}

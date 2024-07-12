@@ -1,18 +1,26 @@
 import { blockSize } from "./../config";
+import { PieceMap, X, O, PieceType } from "../types";
 
 import Block from "./Block";
 
 interface ActivePieceProps {
+  pieceType: PieceType;
   positionX: number;
   positionY: number;
-  onNewPiece(xSize: number, ySize: number): void;
+  onNewPiece(pieceMap: PieceMap): void;
 }
 
 export default function ActivePiece({
+  pieceType,
   positionX,
   positionY,
   onNewPiece,
 }: ActivePieceProps) {
+  const pieceMap: PieceMap = [
+    [X, X, X],
+    [X, O, O],
+  ];
+
   const x = positionX * blockSize;
   const y = positionY * blockSize;
 
@@ -21,7 +29,7 @@ export default function ActivePiece({
     "--position-y": `${y}px`,
   } as React.CSSProperties;
 
-  onNewPiece(3, 2);
+  onNewPiece(pieceMap);
 
   return (
     <div
@@ -29,10 +37,20 @@ export default function ActivePiece({
       className={`absolute top-[var(--position-y)] left-[var(--position-x)]`}
     >
       <div className="relative">
-        <Block absolute positionX={0} positionY={0} type="red"></Block>
-        <Block absolute positionX={1} positionY={0} type="red"></Block>
-        <Block absolute positionX={2} positionY={0} type="red"></Block>
-        <Block absolute positionX={0} positionY={1} type="red"></Block>
+        {pieceMap.map((row, rowIndex) => {
+          return row.map((piece, colIndex) => {
+            if (piece === X) {
+              return (
+                <Block
+                  absolute
+                  positionX={colIndex}
+                  positionY={rowIndex}
+                  type={pieceType}
+                ></Block>
+              );
+            }
+          });
+        })}
       </div>
     </div>
   );
