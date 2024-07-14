@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useRef, useEffect } from "react";
 
 import { boardColsNumber, boardRowsNumber, refreshRate } from "./config";
-import { PieceMap, blockType, X } from "./types";
+import { PieceMap, blockType, X, Hash } from "./types";
 
 import Board from "./components/Board";
 import ActivePiece from "./components/ActivePiece";
@@ -52,7 +52,10 @@ function App() {
     setPieceX((oldXPosition) => {
       let newXPosition = oldXPosition;
 
-      if (oldXPosition + activePieceXSize.current < boardColsNumber - 1) {
+      if (
+        oldXPosition + activePieceXSize.current < boardColsNumber - 1 &&
+        !isCollisionAgainstPiece({ incrementX: 1 })
+      ) {
         newXPosition += 1;
       }
 
@@ -64,7 +67,7 @@ function App() {
     setPieceX((oldXPosition) => {
       let newXPosition = oldXPosition;
 
-      if (oldXPosition > 1) {
+      if (oldXPosition > 1 && !isCollisionAgainstPiece({ incrementX: -1 })) {
         newXPosition -= 1;
       }
 
@@ -80,13 +83,20 @@ function App() {
     }
   }
 
-  function isCollisionAgainstPiece(): boolean {
+  function isCollisionAgainstPiece(
+    increments: Hash<"incrementX" | "incrementY", 1 | -1>
+  ): boolean {
     let collision = false;
+    const incrementX = increments["incrementX"] || 0;
+    const incrementY = increments["incrementY"] || 0;
 
     activePieceMap.current.forEach((row, posY) => {
       row.forEach((block, posX) => {
         if (block === "X") {
-          if (board[pieceY + posY + 1][pieceX + posX] != "empty") {
+          if (
+            board[pieceY + posY + incrementY][pieceX + posX + incrementX] !=
+            "empty"
+          ) {
             collision = true;
           }
         }
@@ -101,7 +111,10 @@ function App() {
   }
 
   function detectCollision() {
-    if (isCollisionAgainstBoardLimit() || isCollisionAgainstPiece()) {
+    if (
+      isCollisionAgainstBoardLimit() ||
+      isCollisionAgainstPiece({ incrementY: 1 })
+    ) {
       // Collision against top limit
       if (pieceY <= 1) {
         gameOver();
@@ -178,6 +191,8 @@ function App() {
   useEffect(() => {
     detectCollision();
   }, [pieceY]);
+
+  console.log("Rendering (Y = " + pieceY + ")");
 
   return (
     <div tabIndex={1} className="bg-white" onKeyDown={handleKeyDown}>
