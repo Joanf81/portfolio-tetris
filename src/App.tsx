@@ -49,30 +49,18 @@ function App() {
   }
 
   function movePieceRight() {
-    setPieceX((oldXPosition) => {
-      let newXPosition = oldXPosition;
-
-      if (
-        oldXPosition + activePieceXSize.current < boardColsNumber - 1 &&
-        !isCollisionAgainstPiece({ incrementX: 1 })
-      ) {
-        newXPosition += 1;
-      }
-
-      return newXPosition;
-    });
+    if (
+      pieceX + activePieceXSize.current < boardColsNumber - 1 &&
+      !isCollisionAgainstPiece({ incrementX: 1 })
+    ) {
+      setPieceX((oldXPosition) => oldXPosition + 1);
+    }
   }
 
   function movePieceLeft() {
-    setPieceX((oldXPosition) => {
-      let newXPosition = oldXPosition;
-
-      if (oldXPosition > 1 && !isCollisionAgainstPiece({ incrementX: -1 })) {
-        newXPosition -= 1;
-      }
-
-      return newXPosition;
-    });
+    if (pieceX > 1 && !isCollisionAgainstPiece({ incrementX: -1 })) {
+      setPieceX((oldXPosition) => oldXPosition - 1);
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -156,7 +144,9 @@ function App() {
   function startGame() {
     if (!startedGame.current) {
       startedGame.current = true;
-      gameTimerID.current = setInterval(gameLoop, refreshRate);
+      gameTimerID.current = setInterval(() => {
+        setPieceY((oldYPosition) => oldYPosition + 1);
+      }, refreshRate);
     }
   }
 
@@ -174,12 +164,6 @@ function App() {
     setPieceY(1);
     setIsGameOver(false);
     startGame();
-  }
-
-  function gameLoop() {
-    setPieceY((oldYPosition) => {
-      return oldYPosition + 1;
-    });
   }
 
   // Game initialices the 1st time componenet gets rendered
