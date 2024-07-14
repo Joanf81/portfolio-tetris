@@ -1,29 +1,34 @@
 import { useState } from "react";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 
 import { boardColsNumber, boardRowsNumber, refreshRate } from "./config";
+import { PieceMap, blockType, X } from "./types";
 
 import Board from "./components/Board";
 import ActivePiece from "./components/ActivePiece";
-import { PieceMap, blockType, X } from "./types";
+import GameOverScreen from "./components/GameOverScreen";
 
 const EmptyBoard: blockType[][] = [];
 
-for (let y = 0; y < boardRowsNumber; y++) {
-  EmptyBoard[y] = [];
-  for (let x = 0; x < boardColsNumber; x++) {
-    if (
-      y == 0 ||
-      x == 0 ||
-      y == boardRowsNumber - 1 ||
-      x == boardColsNumber - 1
-    ) {
-      EmptyBoard[y][x] = "border";
-    } else {
-      EmptyBoard[y][x] = "empty";
+function initializeEmptyBoard() {
+  for (let y = 0; y < boardRowsNumber; y++) {
+    EmptyBoard[y] = [];
+    for (let x = 0; x < boardColsNumber; x++) {
+      if (
+        y == 0 ||
+        x == 0 ||
+        y == boardRowsNumber - 1 ||
+        x == boardColsNumber - 1
+      ) {
+        EmptyBoard[y][x] = "border";
+      } else {
+        EmptyBoard[y][x] = "empty";
+      }
     }
   }
 }
+
+initializeEmptyBoard();
 
 function App() {
   const gameTimerID = useRef<number>(0);
@@ -33,8 +38,9 @@ function App() {
   const activePieceYSize = useRef<number>(0);
 
   const [board, setBoard] = useState<blockType[][]>(EmptyBoard);
+  const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [pieceX, setPieceX] = useState<number>(1);
-  const [pieceY, setPieceY] = useState<number>(1);
+  const [pieceY, setPieceY] = useState<number>(2);
 
   function newActivePieceCallback(pieceMap: PieceMap) {
     activePieceMap.current = pieceMap;
@@ -95,11 +101,18 @@ function App() {
   }
 
   function detectCollision() {
-    if (isCollisionAgainstPiece() || isCollisionAgainstBoardLimit()) {
-      addActivePieceToBoard();
-      setPieceX(1);
-      setPieceY(1);
+    if (isCollisionAgainstBoardLimit() || isCollisionAgainstPiece()) {
+      // Collision against top limit
+      if (pieceY <= 1) {
+        gameOver();
+      } else {
+        addActivePieceToBoard();
+        setPieceX(1);
+        setPieceY(1);
+      }
+      return true;
     }
+    return false;
   }
 
   function addActivePieceToBoard() {
@@ -113,13 +126,7 @@ function App() {
       activePieceMap.current.forEach((row, posY) => {
         row.forEach((piece, poxX) => {
           if (piece === X) {
-            // Collision against top limit
-            if (pieceY + posY == 1) {
-              debugger;
-              pauseGame();
-            } else {
-              newBoard[pieceY + posY][pieceX + poxX] = "red";
-            }
+            newBoard[pieceY + posY][pieceX + poxX] = "red";
           }
         });
       });
@@ -128,16 +135,9 @@ function App() {
     });
   }
 
-  function gameLoop() {
-    setPieceY((oldYPosition) => {
-      return oldYPosition + 1;
-    });
-  }
-
-  function pauseGame() {
-    if (startedGame.current) {
-      clearInterval(gameTimerID.current);
-    }
+  function gameOver() {
+    stopGame();
+    setIsGameOver(true);
   }
 
   function startGame() {
@@ -147,12 +147,42 @@ function App() {
     }
   }
 
-  startGame();
-  detectCollision();
+  function stopGame() {
+    if (startedGame.current) {
+      clearInterval(gameTimerID.current);
+      startedGame.current = false;
+    }
+  }
+
+  function restartGame() {
+    initializeEmptyBoard();
+    setBoard(EmptyBoard);
+    setPieceX(1);
+    setPieceY(1);
+    setIsGameOver(false);
+    startGame();
+  }
+
+  function gameLoop() {
+    setPieceY((oldYPosition) => {
+      return oldYPosition + 1;
+    });
+  }
+
+  // Game initialices the 1st time componenet gets rendered
+  useEffect(() => {
+    startGame();
+  }, []);
+
+  // Everytime Y postion on active piece gets updated:
+  useEffect(() => {
+    detectCollision();
+  }, [pieceY]);
 
   return (
     <div tabIndex={1} className="bg-white" onKeyDown={handleKeyDown}>
       <Board board={board}>
+        <GameOverScreen show={isGameOver} restartGame={restartGame} />
         <ActivePiece
           pieceType={"red"}
           positionX={pieceX}

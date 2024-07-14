@@ -34,7 +34,7 @@ export default function ActivePiece({
   return (
     <div
       style={style}
-      className={`absolute top-[var(--position-y)] left-[var(--position-x)]`}
+      className={`z-20 absolute top-[var(--position-y)] left-[var(--position-x)]`}
     >
       <div className="relative">
         {pieceMap.map((row, rowIndex) => {

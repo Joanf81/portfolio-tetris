@@ -12,17 +12,17 @@ export default function Board({
   children,
   board,
 }: PropsWithChildren<boardProps>) {
-  const style = {
+  const styleBoardSize = {
     "--board-width": `${colsNumber * 40}px`,
-    "grid-template-columns": `repeat(${colsNumber}, minmax(0, 1fr))`,
+  } as React.CSSProperties;
+
+  const styleGridSize = {
+    gridTemplateColumns: `repeat(${colsNumber}, minmax(0, 1fr))`,
   } as React.CSSProperties;
   return (
-    <div className="relative">
+    <div className="relative  w-[var(--board-width)]" style={styleBoardSize}>
       {children}
-      <div
-        style={style}
-        className={`grid justify-start w-[var(--board-width)]`}
-      >
+      <div style={styleGridSize} className={`grid justify-start`}>
         {board.map((row) => {
           return row.map((blockType) => {
             return <Block type={blockType} />;
