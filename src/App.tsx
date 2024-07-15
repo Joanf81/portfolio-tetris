@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useRef, useEffect } from "react";
 
 import { boardColsNumber, boardRowsNumber, refreshRate } from "./config";
-import { PieceMap, blockType, X, Hash } from "./types";
+import { PieceMap, blockType, X, Hash, PiecePositionZType } from "./types";
 import usePrevious from "./hooks/usePrevious";
 
 import Board from "./components/Board";
@@ -46,6 +46,7 @@ function App() {
   const [board, setBoard] = useState<blockType[][]>(EmptyBoard);
   const [pieceX, setPieceX] = useState<number>(1);
   const [pieceY, setPieceY] = useState<number>(2);
+  const [pieceZ, setPieceZ] = useState<PiecePositionZType>(0);
 
   function newActivePieceCallback(pieceMap: PieceMap) {
     activePieceMap.current = pieceMap;
@@ -68,11 +69,30 @@ function App() {
     }
   }
 
+  function rotatePiece() {
+    switch (pieceZ) {
+      case PiecePositionZType.UP:
+        setPieceZ(PiecePositionZType.RIGHT);
+        break;
+      case PiecePositionZType.RIGHT:
+        setPieceZ(PiecePositionZType.DOWN);
+        break;
+      case PiecePositionZType.DOWN:
+        setPieceZ(PiecePositionZType.LEFT);
+        break;
+      case PiecePositionZType.LEFT:
+        setPieceZ(PiecePositionZType.UP);
+        break;
+    }
+  }
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.code === "ArrowRight") {
       movePieceRight();
     } else if (e.code === "ArrowLeft") {
       movePieceLeft();
+    } else if (e.code === "ArrowUp") {
+      rotatePiece();
     } else if (e.code === "KeyP") {
       if (gameState == "RUNNING") {
         setGameState("PAUSED");
@@ -194,6 +214,7 @@ function App() {
           pieceType={"red"}
           positionX={pieceX}
           positionY={pieceY}
+          positionZ={pieceZ}
           onNewPiece={newActivePieceCallback}
         />
       </Board>
