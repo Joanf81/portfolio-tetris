@@ -3,10 +3,14 @@ import { useRef, useEffect } from "react";
 
 import { boardColsNumber, boardRowsNumber, refreshRate } from "./config";
 import { PieceMap, blockType, X, Hash } from "./types";
+import usePrevious from "./hooks/usePrevious";
 
 import Board from "./components/Board";
 import ActivePiece from "./components/ActivePiece";
 import GameOverScreen from "./components/GameOverScreen";
+import PausedScreen from "./components/PausedScreen";
+
+type gameStateType = "INITIAL" | "RUNNING" | "PAUSED" | "GAME OVER";
 
 const EmptyBoard: blockType[][] = [];
 
@@ -32,13 +36,14 @@ initializeEmptyBoard();
 
 function App() {
   const gameTimerID = useRef<number>(0);
-  const startedGame = useRef<boolean>(false);
   const activePieceMap = useRef<PieceMap>([]);
   const activePieceXSize = useRef<number>(0);
   const activePieceYSize = useRef<number>(0);
 
+  const [gameState, setGameState] = useState<gameStateType>("INITIAL");
+  const previousGameState = usePrevious(gameState);
+
   const [board, setBoard] = useState<blockType[][]>(EmptyBoard);
-  const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [pieceX, setPieceX] = useState<number>(1);
   const [pieceY, setPieceY] = useState<number>(2);
 
@@ -68,6 +73,12 @@ function App() {
       movePieceRight();
     } else if (e.code === "ArrowLeft") {
       movePieceLeft();
+    } else if (e.code === "KeyP") {
+      if (gameState == "RUNNING") {
+        setGameState("PAUSED");
+      } else if (gameState == "PAUSED") {
+        setGameState("RUNNING");
+      }
     }
   }
 
@@ -105,7 +116,7 @@ function App() {
     ) {
       // Collision against top limit
       if (pieceY <= 1) {
-        gameOver();
+        setGameState("GAME OVER");
       } else {
         addActivePieceToBoard();
         setPieceX(1);
@@ -136,39 +147,29 @@ function App() {
     });
   }
 
-  function gameOver() {
-    stopGame();
-    setIsGameOver(true);
-  }
-
-  function startGame() {
-    if (!startedGame.current) {
-      startedGame.current = true;
-      gameTimerID.current = setInterval(() => {
-        setPieceY((oldYPosition) => oldYPosition + 1);
-      }, refreshRate);
+  useEffect(() => {
+    switch (gameState) {
+      case "RUNNING":
+        if (previousGameState == "GAME OVER") {
+          initializeEmptyBoard();
+          setBoard(EmptyBoard);
+          setPieceX(1);
+          setPieceY(1);
+        }
+        gameTimerID.current = setInterval(() => {
+          setPieceY((oldYPosition) => oldYPosition + 1);
+        }, refreshRate);
+        break;
+      case "PAUSED":
+      case "GAME OVER":
+        clearInterval(gameTimerID.current);
+        break;
     }
-  }
-
-  function stopGame() {
-    if (startedGame.current) {
-      clearInterval(gameTimerID.current);
-      startedGame.current = false;
-    }
-  }
-
-  function restartGame() {
-    initializeEmptyBoard();
-    setBoard(EmptyBoard);
-    setPieceX(1);
-    setPieceY(1);
-    setIsGameOver(false);
-    startGame();
-  }
+  }, [gameState]);
 
   // Game initialices the 1st time componenet gets rendered
   useEffect(() => {
-    startGame();
+    setGameState("RUNNING");
   }, []);
 
   // Everytime Y postion on active piece gets updated:
@@ -181,7 +182,14 @@ function App() {
   return (
     <div tabIndex={1} className="bg-white" onKeyDown={handleKeyDown}>
       <Board board={board}>
-        <GameOverScreen show={isGameOver} restartGame={restartGame} />
+        <GameOverScreen
+          show={gameState == "GAME OVER"}
+          restartGame={() => setGameState("RUNNING")}
+        />
+        <PausedScreen
+          show={gameState == "PAUSED"}
+          resumeGame={() => setGameState("RUNNING")}
+        />
         <ActivePiece
           pieceType={"red"}
           positionX={pieceX}
