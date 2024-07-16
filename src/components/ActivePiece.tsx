@@ -1,27 +1,17 @@
 import { blockSize } from "./../config";
-import { PieceMap, X, PieceType } from "../types";
+import { PieceMap, X, PieceColor } from "../types";
 
 import Block from "./Block";
 
-// console.log(positionZ);
-//     let log = "";
-//     pieceMapList[positionZ].forEach((row) => {
-//       row.forEach((e) => {
-//         log += e + " ";
-//       });
-//       log += "\n";
-//     });
-//     console.log(log);
-
 interface ActivePieceProps {
-  pieceType: PieceType;
+  PieceColor: PieceColor;
   pieceMap: PieceMap;
   positionX: number;
   positionY: number;
 }
 
 export default function ActivePiece({
-  pieceType,
+  PieceColor,
   pieceMap,
   positionX,
   positionY,
@@ -33,6 +23,8 @@ export default function ActivePiece({
     "--position-x": `${x}px`,
     "--position-y": `${y}px`,
   } as React.CSSProperties;
+
+  console.log(PieceColor);
 
   return (
     <div
@@ -48,7 +40,7 @@ export default function ActivePiece({
                   absolute
                   positionX={colIndex}
                   positionY={rowIndex}
-                  type={pieceType}
+                  type={PieceColor}
                 ></Block>
               );
             }

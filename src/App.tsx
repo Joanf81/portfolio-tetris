@@ -13,6 +13,7 @@ import {
   X,
   PiecePositionZType,
   pieceMapListType,
+  PieceColor,
 } from "./types";
 import usePrevious from "./hooks/usePrevious";
 
@@ -20,7 +21,7 @@ import Board from "./components/Board";
 import ActivePiece from "./components/ActivePiece";
 import GameOverScreen from "./components/GameOverScreen";
 import PausedScreen from "./components/PausedScreen";
-import { randomPieceMap } from "./lib/pieces";
+import { randomPieceMap, randomPieceColor } from "./lib/pieces";
 
 type gameStateType = "INITIAL" | "RUNNING" | "PAUSED" | "GAME OVER";
 
@@ -58,8 +59,24 @@ function addWallToBoard() {
   emptyBoard = board;
 }
 
+function copyBoard(board: boardType) {
+  return board.map((arr) => {
+    return arr.slice();
+  });
+}
+
+const emptyBoardLine: Array<blockType> = [];
+
+for (let i = 0; i < boardColsNumber; i++) {
+  if (i === 0 || i === boardColsNumber - 1) {
+    emptyBoardLine.push("border");
+  } else {
+    emptyBoardLine.push("empty");
+  }
+}
+
 initializeEmptyBoard();
-addWallToBoard();
+// addWallToBoard();
 
 function App() {
   const gameTimerID = useRef<number>(0);
@@ -70,6 +87,7 @@ function App() {
 
   const [board, setBoard] = useState<boardType>(emptyBoard);
   const [pieceMap, setPieceMap] = useState<pieceMapListType>(randomPieceMap());
+  const [pieceColor, setPieceColor] = useState<PieceColor>(randomPieceColor());
   const [pieceX, setPieceX] = useState<number>(1);
   const [pieceY, setPieceY] = useState<number>(2);
   const [pieceZ, setPieceZ] = useState<PiecePositionZType>(0);
@@ -171,6 +189,36 @@ function App() {
     return false;
   }
 
+  function getCompletedLines(): Array<number> {
+    let lines: Array<number> = [];
+
+    board.forEach((row, rowIndex) => {
+      const rowWithoutBorders = row.slice(1, row.length - 1);
+      if (rowWithoutBorders.every((e) => e != "border" && e != "empty"))
+        lines.push(rowIndex);
+    });
+
+    return lines;
+  }
+
+  function detectLines() {
+    console.log(getCompletedLines());
+    const lines = getCompletedLines();
+
+    if (lines.length > 0) {
+      setBoard((oldBoard) => {
+        const newBoard = copyBoard(oldBoard);
+
+        lines.forEach((lineY) => {
+          newBoard.splice(lineY, 1);
+          newBoard.splice(1, 0, emptyBoardLine);
+        });
+
+        return newBoard;
+      });
+    }
+  }
+
   function addActivePieceToBoard() {
     setBoard((oldBoard) => {
       let newBoard: blockType[][] = [];
@@ -182,15 +230,17 @@ function App() {
       pieceMap[pieceZ].forEach((row, posY) => {
         row.forEach((piece, poxX) => {
           if (piece === X) {
-            newBoard[pieceY + posY][pieceX + poxX] = "red";
+            newBoard[pieceY + posY][pieceX + poxX] = pieceColor;
           }
         });
       });
 
       return newBoard;
     });
+
     setPieceMap(randomPieceMap());
     setPieceZ(PiecePositionZType.UP);
+    setPieceColor(randomPieceColor());
   }
 
   useEffect(() => {
@@ -225,6 +275,10 @@ function App() {
     detectCollision();
   }, [pieceY]);
 
+  useEffect(() => {
+    detectLines();
+  }, [board]);
+
   // console.log("Rendering (Y = " + pieceY + ")");
 
   return (
@@ -239,7 +293,7 @@ function App() {
           resumeGame={() => setGameState("RUNNING")}
         />
         <ActivePiece
-          pieceType={"red"}
+          PieceColor={pieceColor}
           pieceMap={pieceMap[pieceZ]}
           positionX={pieceX}
           positionY={pieceY}
