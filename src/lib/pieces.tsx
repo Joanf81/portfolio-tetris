@@ -53,7 +53,7 @@ const listOfMaps: Array<pieceMapListType> = listOfPieces.map((piece) => {
 // Functions:
 
 export function randomPieceMap(): pieceMapListType {
-  return listOfMaps[Math.floor(Math.random() * listOfMaps.length) - 1];
+  return listOfMaps[Math.floor(Math.random() * listOfMaps.length)];
 }
 
 function copyMatrix(matrix: PieceMap) {
