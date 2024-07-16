@@ -4,6 +4,9 @@ export const O = "O";
 
 export type Piece = "X" | "O";
 export type PieceMap = Piece[][];
+export type pieceMapListType = {
+  [key in PiecePositionZType]: PieceMap;
+};
 
 export enum PiecePositionZType {
   UP,
@@ -15,6 +18,9 @@ export enum PiecePositionZType {
 // Piece type:
 export type PieceType = "red";
 export type blockType = PieceType | "empty" | "border";
+
+// Board
+export type boardType = blockType[][];
 
 // Other
 export type TaildWindClass = string;

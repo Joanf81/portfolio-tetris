@@ -1,46 +1,55 @@
-import { blockSize } from "./../config";
-import { PieceMap, X, O, PieceType, PiecePositionZType } from "../types";
+import { blockSize, boardColsNumber } from "./../config";
+import {
+  PieceMap,
+  X,
+  O,
+  PieceType,
+  PiecePositionZType,
+  boardType,
+} from "../types";
 
 import Block from "./Block";
 import { useEffect, useState } from "react";
+import { isCollisionAgainstPiece } from "../lib/collisions";
+import { listOfMaps } from "../lib/pieces";
+
+// console.log(positionZ);
+//     let log = "";
+//     pieceMapList[positionZ].forEach((row) => {
+//       row.forEach((e) => {
+//         log += e + " ";
+//       });
+//       log += "\n";
+//     });
+//     console.log(log);
 
 interface ActivePieceProps {
+  board: boardType;
   pieceType: PieceType;
+  pieceShape: number;
   positionX: number;
   positionY: number;
   positionZ: PiecePositionZType;
-  onNewPiece(pieceMap: PieceMap): void;
+  onChange(
+    pieceMap: PieceMap,
+    positionX: number,
+    positionZ: PiecePositionZType
+  ): void;
 }
-
-function transpose(matrix: PieceMap) {
-  return matrix[0].map((col, i) => matrix.map((row) => row[i]));
-}
-
-type pieceMapListType = {
-  [key in PiecePositionZType]: PieceMap;
-};
-
-const pieceMap1: PieceMap = [
-  [X, X, X],
-  [X, O, O],
-];
-
-const pieceMapList: pieceMapListType = {
-  0: pieceMap1,
-  1: transpose(pieceMap1),
-  2: pieceMap1.reverse(),
-  3: transpose(pieceMap1).reverse(),
-};
 
 export default function ActivePiece({
+  board,
   pieceType,
+  pieceShape,
   positionX,
   positionY,
   positionZ,
-  onNewPiece,
+  onChange,
 }: ActivePieceProps) {
   const x = positionX * blockSize;
   const y = positionY * blockSize;
+
+  const pieceMapList = listOfMaps[pieceShape];
 
   const [pieceMap, setPieceMap] = useState<PieceMap>(pieceMapList[positionZ]);
 
@@ -49,12 +58,49 @@ export default function ActivePiece({
     "--position-y": `${y}px`,
   } as React.CSSProperties;
 
+  function rotate() {
+    const activePieceXSize = pieceMapList[positionZ].length;
+
+    if (
+      positionX + activePieceXSize <= boardColsNumber - 1 &&
+      !isCollisionAgainstPiece(
+        board,
+        pieceMapList[positionZ],
+        positionX,
+        positionY,
+        { incrementX: 1 }
+      )
+    ) {
+      setPieceMap(pieceMapList[positionZ]);
+    } else {
+      if (
+        !isCollisionAgainstPiece(
+          board,
+          pieceMapList[positionZ],
+          positionX,
+          positionY,
+          {
+            incrementX: -1,
+          }
+        )
+      ) {
+        setPieceMap(pieceMapList[positionZ]);
+        onChange(pieceMap, positionX - 1, positionZ);
+      }
+    }
+  }
+
   useEffect(() => {
-    setPieceMap(pieceMapList[positionZ]);
-    onNewPiece(pieceMap);
+    rotate();
   }, [positionZ]);
 
-  onNewPiece(pieceMap);
+  useEffect(() => {
+    onChange(pieceMap, positionX, positionZ);
+  }, [pieceMap]);
+
+  useEffect(() => {
+    onChange(pieceMap, positionX, positionZ);
+  }, []);
 
   return (
     <div

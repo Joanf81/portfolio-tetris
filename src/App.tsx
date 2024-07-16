@@ -1,22 +1,27 @@
 import { useState } from "react";
 import { useRef, useEffect } from "react";
 
+import {
+  isCollisionAgainstBoardLimit,
+  isCollisionAgainstPiece,
+} from "./lib/collisions";
 import { boardColsNumber, boardRowsNumber, refreshRate } from "./config";
-import { PieceMap, blockType, X, Hash, PiecePositionZType } from "./types";
+import { PieceMap, blockType, boardType, X, PiecePositionZType } from "./types";
 import usePrevious from "./hooks/usePrevious";
 
 import Board from "./components/Board";
 import ActivePiece from "./components/ActivePiece";
 import GameOverScreen from "./components/GameOverScreen";
 import PausedScreen from "./components/PausedScreen";
+import { AmmountOfPieceShapes } from "./lib/pieces";
 
 type gameStateType = "INITIAL" | "RUNNING" | "PAUSED" | "GAME OVER";
 
-const EmptyBoard: blockType[][] = [];
+let emptyBoard: blockType[][] = [];
 
 function initializeEmptyBoard() {
   for (let y = 0; y < boardRowsNumber; y++) {
-    EmptyBoard[y] = [];
+    emptyBoard[y] = [];
     for (let x = 0; x < boardColsNumber; x++) {
       if (
         y == 0 ||
@@ -24,47 +29,83 @@ function initializeEmptyBoard() {
         y == boardRowsNumber - 1 ||
         x == boardColsNumber - 1
       ) {
-        EmptyBoard[y][x] = "border";
+        emptyBoard[y][x] = "border";
       } else {
-        EmptyBoard[y][x] = "empty";
+        emptyBoard[y][x] = "empty";
       }
     }
   }
 }
 
+function addWallToBoard() {
+  const board = emptyBoard.map((row, y) => {
+    return row.map((element, x) => {
+      if (y > 5 && x === 8) {
+        return "red";
+      } else {
+        return element;
+      }
+    });
+  });
+
+  emptyBoard = board;
+}
+
 initializeEmptyBoard();
+addWallToBoard();
 
 function App() {
   const gameTimerID = useRef<number>(0);
   const activePieceMap = useRef<PieceMap>([]);
   const activePieceXSize = useRef<number>(0);
-  const activePieceYSize = useRef<number>(0);
+  const pieceShape = useRef<number>(
+    Math.floor(Math.random() * AmmountOfPieceShapes) - 1
+  );
 
   const [gameState, setGameState] = useState<gameStateType>("INITIAL");
   const previousGameState = usePrevious(gameState);
 
-  const [board, setBoard] = useState<blockType[][]>(EmptyBoard);
+  const [board, setBoard] = useState<boardType>(emptyBoard);
   const [pieceX, setPieceX] = useState<number>(1);
   const [pieceY, setPieceY] = useState<number>(2);
   const [pieceZ, setPieceZ] = useState<PiecePositionZType>(0);
 
-  function newActivePieceCallback(pieceMap: PieceMap) {
-    activePieceMap.current = pieceMap;
-    activePieceXSize.current = pieceMap[0].length;
-    activePieceYSize.current = pieceMap.length;
+  function activePieceChangeHandler(
+    pieceMap: PieceMap,
+    positionX: number,
+    positionZ: PiecePositionZType
+  ) {
+    if (positionX != pieceX) {
+      setPieceX(positionX);
+    }
+
+    if (positionZ != pieceZ) {
+      setPieceZ(positionZ);
+    }
+
+    if (pieceMap != activePieceMap.current) {
+      activePieceMap.current = pieceMap;
+    }
   }
 
   function movePieceRight() {
     if (
       pieceX + activePieceXSize.current < boardColsNumber - 1 &&
-      !isCollisionAgainstPiece({ incrementX: 1 })
+      !isCollisionAgainstPiece(board, activePieceMap.current, pieceX, pieceY, {
+        incrementX: 1,
+      })
     ) {
       setPieceX((oldXPosition) => oldXPosition + 1);
     }
   }
 
   function movePieceLeft() {
-    if (pieceX > 1 && !isCollisionAgainstPiece({ incrementX: -1 })) {
+    if (
+      pieceX > 1 &&
+      !isCollisionAgainstPiece(board, activePieceMap.current, pieceX, pieceY, {
+        incrementX: -1,
+      })
+    ) {
       setPieceX((oldXPosition) => oldXPosition - 1);
     }
   }
@@ -93,6 +134,8 @@ function App() {
       movePieceLeft();
     } else if (e.code === "ArrowUp") {
       rotatePiece();
+    } else if (e.code === "ArrowDown") {
+      setPieceY((oldYPosition) => oldYPosition + 1);
     } else if (e.code === "KeyP") {
       if (gameState == "RUNNING") {
         setGameState("PAUSED");
@@ -102,37 +145,13 @@ function App() {
     }
   }
 
-  function isCollisionAgainstPiece(
-    increments: Hash<"incrementX" | "incrementY", 1 | -1>
-  ): boolean {
-    let collision = false;
-    const incrementX = increments["incrementX"] || 0;
-    const incrementY = increments["incrementY"] || 0;
-
-    activePieceMap.current.forEach((row, posY) => {
-      row.forEach((block, posX) => {
-        if (block === "X") {
-          if (
-            board[pieceY + posY + incrementY][pieceX + posX + incrementX] !=
-            "empty"
-          ) {
-            collision = true;
-          }
-        }
-      });
-    });
-
-    return collision;
-  }
-
-  function isCollisionAgainstBoardLimit(): boolean {
-    return pieceY + activePieceYSize.current >= boardRowsNumber - 1;
-  }
-
   function detectCollision() {
+    console.log("detecting");
     if (
-      isCollisionAgainstBoardLimit() ||
-      isCollisionAgainstPiece({ incrementY: 1 })
+      isCollisionAgainstBoardLimit(activePieceMap.current, pieceY) ||
+      isCollisionAgainstPiece(board, activePieceMap.current, pieceX, pieceY, {
+        incrementY: 1,
+      })
     ) {
       // Collision against top limit
       if (pieceY <= 1) {
@@ -141,6 +160,7 @@ function App() {
         addActivePieceToBoard();
         setPieceX(1);
         setPieceY(1);
+        setPieceZ(0);
       }
       return true;
     }
@@ -172,7 +192,9 @@ function App() {
       case "RUNNING":
         if (previousGameState == "GAME OVER") {
           initializeEmptyBoard();
-          setBoard(EmptyBoard);
+          setBoard(emptyBoard);
+          pieceShape.current =
+            Math.floor(Math.random() * AmmountOfPieceShapes) - 1;
           setPieceX(1);
           setPieceY(1);
         }
@@ -197,7 +219,7 @@ function App() {
     detectCollision();
   }, [pieceY]);
 
-  console.log("Rendering (Y = " + pieceY + ")");
+  // console.log("Rendering (Y = " + pieceY + ")");
 
   return (
     <div tabIndex={1} className="bg-white" onKeyDown={handleKeyDown}>
@@ -211,11 +233,13 @@ function App() {
           resumeGame={() => setGameState("RUNNING")}
         />
         <ActivePiece
+          board={board}
           pieceType={"red"}
+          pieceShape={pieceShape.current}
           positionX={pieceX}
           positionY={pieceY}
           positionZ={pieceZ}
-          onNewPiece={newActivePieceCallback}
+          onChange={activePieceChangeHandler}
         />
       </Board>
     </div>
