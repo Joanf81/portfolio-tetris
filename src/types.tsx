@@ -16,8 +16,20 @@ export enum PiecePositionZType {
 }
 
 // Piece type:
-export type PieceType = "red";
-export type blockType = PieceType | "empty" | "border";
+export const colorList = [
+  "red",
+  "orange",
+  "green",
+  "emerald",
+  "light-blue",
+  "dark-blue",
+  "yellow",
+  "pink",
+  "purple",
+];
+export type PieceColor = (typeof colorList)[number];
+
+export type blockType = PieceColor | "empty" | "border";
 
 // Board
 export type boardType = blockType[][];

@@ -1,4 +1,13 @@
-import { O, PieceMap, X, pieceMapListType } from "../types";
+import {
+  O,
+  PieceMap,
+  X,
+  pieceMapListType,
+  PieceColor,
+  colorList,
+} from "../types";
+
+// Piece maps
 
 const pieceSquare: PieceMap = [
   [X, X],
@@ -50,11 +59,16 @@ const listOfMaps: Array<pieceMapListType> = listOfPieces.map((piece) => {
   return { 0: piece, 1: rotated90, 2: rotated180, 3: rotated270 };
 });
 
-// Functions:
-
 export function randomPieceMap(): pieceMapListType {
   return listOfMaps[Math.floor(Math.random() * listOfMaps.length)];
 }
+
+// Colors
+export function randomPieceColor(): PieceColor {
+  return colorList[Math.floor(Math.random() * colorList.length)];
+}
+
+// Secondary unctions:
 
 function copyMatrix(matrix: PieceMap) {
   return matrix.map((arr) => {
