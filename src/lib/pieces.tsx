@@ -5,7 +5,7 @@ const pieceSquare: PieceMap = [
   [X, X],
 ];
 
-const pieceLong: PieceMap = [[X, X, X]];
+const pieceLong: PieceMap = [[X, X, X, X]];
 
 const pieceT: PieceMap = [
   [O, X, O],
@@ -42,7 +42,7 @@ const listOfPieces = [
   pieceZ,
 ];
 
-export const listOfMaps: Array<pieceMapListType> = listOfPieces.map((piece) => {
+const listOfMaps: Array<pieceMapListType> = listOfPieces.map((piece) => {
   const rotated90 = rotateMatrix(piece);
   const rotated180 = rotateMatrix(rotated90);
   const rotated270 = rotateMatrix(rotated180);
@@ -50,9 +50,11 @@ export const listOfMaps: Array<pieceMapListType> = listOfPieces.map((piece) => {
   return { 0: piece, 1: rotated90, 2: rotated180, 3: rotated270 };
 });
 
-export const AmmountOfPieceShapes = listOfMaps.length;
-
 // Functions:
+
+export function randomPieceMap(): pieceMapListType {
+  return listOfMaps[Math.floor(Math.random() * listOfMaps.length) - 1];
+}
 
 function copyMatrix(matrix: PieceMap) {
   return matrix.map((arr) => {

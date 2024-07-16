@@ -6,14 +6,21 @@ import {
   isCollisionAgainstPiece,
 } from "./lib/collisions";
 import { boardColsNumber, boardRowsNumber, refreshRate } from "./config";
-import { PieceMap, blockType, boardType, X, PiecePositionZType } from "./types";
+import {
+  PieceMap,
+  blockType,
+  boardType,
+  X,
+  PiecePositionZType,
+  pieceMapListType,
+} from "./types";
 import usePrevious from "./hooks/usePrevious";
 
 import Board from "./components/Board";
 import ActivePiece from "./components/ActivePiece";
 import GameOverScreen from "./components/GameOverScreen";
 import PausedScreen from "./components/PausedScreen";
-import { AmmountOfPieceShapes } from "./lib/pieces";
+import { randomPieceMap } from "./lib/pieces";
 
 type gameStateType = "INITIAL" | "RUNNING" | "PAUSED" | "GAME OVER";
 
@@ -56,76 +63,16 @@ addWallToBoard();
 
 function App() {
   const gameTimerID = useRef<number>(0);
-  const activePieceMap = useRef<PieceMap>([]);
   const activePieceXSize = useRef<number>(0);
-  const pieceShape = useRef<number>(
-    Math.floor(Math.random() * AmmountOfPieceShapes) - 1
-  );
 
   const [gameState, setGameState] = useState<gameStateType>("INITIAL");
   const previousGameState = usePrevious(gameState);
 
   const [board, setBoard] = useState<boardType>(emptyBoard);
+  const [pieceMap, setPieceMap] = useState<pieceMapListType>(randomPieceMap());
   const [pieceX, setPieceX] = useState<number>(1);
   const [pieceY, setPieceY] = useState<number>(2);
   const [pieceZ, setPieceZ] = useState<PiecePositionZType>(0);
-
-  function activePieceChangeHandler(
-    pieceMap: PieceMap,
-    positionX: number,
-    positionZ: PiecePositionZType
-  ) {
-    if (positionX != pieceX) {
-      setPieceX(positionX);
-    }
-
-    if (positionZ != pieceZ) {
-      setPieceZ(positionZ);
-    }
-
-    if (pieceMap != activePieceMap.current) {
-      activePieceMap.current = pieceMap;
-    }
-  }
-
-  function movePieceRight() {
-    if (
-      pieceX + activePieceXSize.current < boardColsNumber - 1 &&
-      !isCollisionAgainstPiece(board, activePieceMap.current, pieceX, pieceY, {
-        incrementX: 1,
-      })
-    ) {
-      setPieceX((oldXPosition) => oldXPosition + 1);
-    }
-  }
-
-  function movePieceLeft() {
-    if (
-      pieceX > 1 &&
-      !isCollisionAgainstPiece(board, activePieceMap.current, pieceX, pieceY, {
-        incrementX: -1,
-      })
-    ) {
-      setPieceX((oldXPosition) => oldXPosition - 1);
-    }
-  }
-
-  function rotatePiece() {
-    switch (pieceZ) {
-      case PiecePositionZType.UP:
-        setPieceZ(PiecePositionZType.RIGHT);
-        break;
-      case PiecePositionZType.RIGHT:
-        setPieceZ(PiecePositionZType.DOWN);
-        break;
-      case PiecePositionZType.DOWN:
-        setPieceZ(PiecePositionZType.LEFT);
-        break;
-      case PiecePositionZType.LEFT:
-        setPieceZ(PiecePositionZType.UP);
-        break;
-    }
-  }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.code === "ArrowRight") {
@@ -145,11 +92,68 @@ function App() {
     }
   }
 
-  function detectCollision() {
-    console.log("detecting");
+  function movePieceRight() {
     if (
-      isCollisionAgainstBoardLimit(activePieceMap.current, pieceY) ||
-      isCollisionAgainstPiece(board, activePieceMap.current, pieceX, pieceY, {
+      pieceX + activePieceXSize.current < boardColsNumber - 1 &&
+      !isCollisionAgainstPiece(board, pieceMap[pieceZ], pieceX, pieceY, {
+        incrementX: 1,
+      })
+    ) {
+      setPieceX((oldXPosition) => oldXPosition + 1);
+    }
+  }
+
+  function movePieceLeft() {
+    if (
+      pieceX > 1 &&
+      !isCollisionAgainstPiece(board, pieceMap[pieceZ], pieceX, pieceY, {
+        incrementX: -1,
+      })
+    ) {
+      setPieceX((oldXPosition) => oldXPosition - 1);
+    }
+  }
+
+  function nextPieceType() {
+    switch (pieceZ) {
+      case PiecePositionZType.UP:
+        return PiecePositionZType.RIGHT;
+      case PiecePositionZType.RIGHT:
+        return PiecePositionZType.DOWN;
+      case PiecePositionZType.DOWN:
+        return PiecePositionZType.LEFT;
+      case PiecePositionZType.LEFT:
+        return PiecePositionZType.UP;
+    }
+  }
+
+  function rotatePiece() {
+    const nextPieceMap: PieceMap = pieceMap[nextPieceType()];
+    const activePieceXSize = nextPieceMap.length;
+
+    if (
+      pieceX + activePieceXSize <= boardColsNumber - 1 &&
+      !isCollisionAgainstPiece(board, nextPieceMap, pieceX, pieceY, {
+        incrementX: 1,
+      })
+    ) {
+      setPieceZ(() => nextPieceType());
+    } else {
+      if (
+        !isCollisionAgainstPiece(board, nextPieceMap, pieceX, pieceY, {
+          incrementX: -1,
+        })
+      ) {
+        setPieceZ(() => nextPieceType());
+        setPieceX((oldXPosition) => oldXPosition - 1);
+      }
+    }
+  }
+
+  function detectCollision() {
+    if (
+      isCollisionAgainstBoardLimit(pieceMap[pieceZ], pieceY) ||
+      isCollisionAgainstPiece(board, pieceMap[pieceZ], pieceX, pieceY, {
         incrementY: 1,
       })
     ) {
@@ -175,7 +179,7 @@ function App() {
         return row.slice();
       });
 
-      activePieceMap.current.forEach((row, posY) => {
+      pieceMap[pieceZ].forEach((row, posY) => {
         row.forEach((piece, poxX) => {
           if (piece === X) {
             newBoard[pieceY + posY][pieceX + poxX] = "red";
@@ -185,6 +189,8 @@ function App() {
 
       return newBoard;
     });
+    setPieceMap(randomPieceMap());
+    setPieceZ(PiecePositionZType.UP);
   }
 
   useEffect(() => {
@@ -193,8 +199,8 @@ function App() {
         if (previousGameState == "GAME OVER") {
           initializeEmptyBoard();
           setBoard(emptyBoard);
-          pieceShape.current =
-            Math.floor(Math.random() * AmmountOfPieceShapes) - 1;
+          setPieceMap(randomPieceMap());
+          setPieceZ(PiecePositionZType.UP);
           setPieceX(1);
           setPieceY(1);
         }
@@ -233,13 +239,10 @@ function App() {
           resumeGame={() => setGameState("RUNNING")}
         />
         <ActivePiece
-          board={board}
           pieceType={"red"}
-          pieceShape={pieceShape.current}
+          pieceMap={pieceMap[pieceZ]}
           positionX={pieceX}
           positionY={pieceY}
-          positionZ={pieceZ}
-          onChange={activePieceChangeHandler}
         />
       </Board>
     </div>

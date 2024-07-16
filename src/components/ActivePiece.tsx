@@ -1,17 +1,7 @@
-import { blockSize, boardColsNumber } from "./../config";
-import {
-  PieceMap,
-  X,
-  O,
-  PieceType,
-  PiecePositionZType,
-  boardType,
-} from "../types";
+import { blockSize } from "./../config";
+import { PieceMap, X, PieceType } from "../types";
 
 import Block from "./Block";
-import { useEffect, useState } from "react";
-import { isCollisionAgainstPiece } from "../lib/collisions";
-import { listOfMaps } from "../lib/pieces";
 
 // console.log(positionZ);
 //     let log = "";
@@ -24,83 +14,25 @@ import { listOfMaps } from "../lib/pieces";
 //     console.log(log);
 
 interface ActivePieceProps {
-  board: boardType;
   pieceType: PieceType;
-  pieceShape: number;
+  pieceMap: PieceMap;
   positionX: number;
   positionY: number;
-  positionZ: PiecePositionZType;
-  onChange(
-    pieceMap: PieceMap,
-    positionX: number,
-    positionZ: PiecePositionZType
-  ): void;
 }
 
 export default function ActivePiece({
-  board,
   pieceType,
-  pieceShape,
+  pieceMap,
   positionX,
   positionY,
-  positionZ,
-  onChange,
 }: ActivePieceProps) {
   const x = positionX * blockSize;
   const y = positionY * blockSize;
-
-  const pieceMapList = listOfMaps[pieceShape];
-
-  const [pieceMap, setPieceMap] = useState<PieceMap>(pieceMapList[positionZ]);
 
   const style = {
     "--position-x": `${x}px`,
     "--position-y": `${y}px`,
   } as React.CSSProperties;
-
-  function rotate() {
-    const activePieceXSize = pieceMapList[positionZ].length;
-
-    if (
-      positionX + activePieceXSize <= boardColsNumber - 1 &&
-      !isCollisionAgainstPiece(
-        board,
-        pieceMapList[positionZ],
-        positionX,
-        positionY,
-        { incrementX: 1 }
-      )
-    ) {
-      setPieceMap(pieceMapList[positionZ]);
-    } else {
-      if (
-        !isCollisionAgainstPiece(
-          board,
-          pieceMapList[positionZ],
-          positionX,
-          positionY,
-          {
-            incrementX: -1,
-          }
-        )
-      ) {
-        setPieceMap(pieceMapList[positionZ]);
-        onChange(pieceMap, positionX - 1, positionZ);
-      }
-    }
-  }
-
-  useEffect(() => {
-    rotate();
-  }, [positionZ]);
-
-  useEffect(() => {
-    onChange(pieceMap, positionX, positionZ);
-  }, [pieceMap]);
-
-  useEffect(() => {
-    onChange(pieceMap, positionX, positionZ);
-  }, []);
 
   return (
     <div
