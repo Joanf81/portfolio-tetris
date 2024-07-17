@@ -273,7 +273,7 @@ function App() {
   // Everytime Y postion on active piece gets updated:
   useEffect(() => {
     detectCollision();
-  }, [pieceY]);
+  }, [pieceY, pieceX]);
 
   useEffect(() => {
     detectLines();
