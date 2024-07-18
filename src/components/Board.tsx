@@ -1,17 +1,12 @@
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useContext } from "react";
 
 import { boardColsNumber as colsNumber } from "../config";
 import Block from "./Block";
-import { blockType } from "../types";
+import { BoardContext } from "../store/BoardContext";
 
-interface boardProps {
-  board: blockType[][];
-}
+export default function Board({ children }: PropsWithChildren) {
+  const boardContext = useContext(BoardContext);
 
-export default function Board({
-  children,
-  board,
-}: PropsWithChildren<boardProps>) {
   const styleBoardSize = {
     "--board-width": `${colsNumber * 40}px`,
   } as React.CSSProperties;
@@ -20,10 +15,10 @@ export default function Board({
     gridTemplateColumns: `repeat(${colsNumber}, minmax(0, 1fr))`,
   } as React.CSSProperties;
   return (
-    <div className="relative  w-[var(--board-width)]" style={styleBoardSize}>
+    <div className="relative w-[var(--board-width)]" style={styleBoardSize}>
       {children}
       <div style={styleGridSize} className={`grid justify-start bg-black`}>
-        {board.map((row) => {
+        {boardContext.board.map((row) => {
           return row.map((blockType) => {
             return <Block type={blockType} />;
           });
