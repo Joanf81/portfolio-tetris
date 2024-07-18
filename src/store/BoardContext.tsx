@@ -1,4 +1,4 @@
-import { PropsWithChildren, createContext, useReducer } from "react";
+import { PropsWithChildren, createContext, useEffect, useReducer } from "react";
 import { PieceColor, PieceMap, blockType, boardType, X } from "../types";
 import { boardColsNumber, boardRowsNumber } from "../config";
 
@@ -82,8 +82,15 @@ type addPieceToBoardAction = {
     pieceColor: PieceColor;
   };
 };
+type emptyLinesFromBoardAction = {
+  type: "EMPTY_LINE";
+  payload: { line: number };
+};
 
-type boardActionType = emptyBoardAction | addPieceToBoardAction;
+type boardActionType =
+  | emptyBoardAction
+  | addPieceToBoardAction
+  | emptyLinesFromBoardAction;
 
 function boardReducer(
   state: BoardContextType,
@@ -107,6 +114,14 @@ function boardReducer(
           }
         });
       });
+      break;
+
+    case "EMPTY_LINE":
+      board = copyBoard(state.board);
+      const { line } = action.payload;
+
+      board.splice(line, 1);
+      board.splice(1, 0, emptyBoardLine);
       break;
   }
 
@@ -140,6 +155,16 @@ export default function BoardContextProvider({ children }: PropsWithChildren) {
       },
     });
   }
+
+  function detectAndRemoveCompletedLines() {
+    boardState.board.forEach((row, rowIndex) => {
+      const rowWithoutBorders = row.slice(1, row.length - 1);
+      if (rowWithoutBorders.every((e) => e != "border" && e != "empty"))
+        boardDispatch({ type: "EMPTY_LINE", payload: { line: rowIndex } });
+    });
+  }
+
+  useEffect(() => detectAndRemoveCompletedLines(), [boardState]);
 
   const boardContextValue: BoardContextType = {
     ...boardState,

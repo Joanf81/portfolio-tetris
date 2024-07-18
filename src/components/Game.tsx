@@ -220,36 +220,6 @@ function Game() {
     return false;
   }
 
-  function getCompletedLines(): Array<number> {
-    let lines: Array<number> = [];
-
-    boardContext.board.forEach((row, rowIndex) => {
-      const rowWithoutBorders = row.slice(1, row.length - 1);
-      if (rowWithoutBorders.every((e) => e != "border" && e != "empty"))
-        lines.push(rowIndex);
-    });
-
-    return lines;
-  }
-
-  function detectLines() {
-    console.log(getCompletedLines());
-    const lines = getCompletedLines();
-
-    if (lines.length > 0) {
-      setBoard((oldBoard) => {
-        const newBoard = copyBoard(oldBoard);
-
-        lines.forEach((lineY) => {
-          newBoard.splice(lineY, 1);
-          newBoard.splice(1, 0, emptyBoardLine);
-        });
-
-        return newBoard;
-      });
-    }
-  }
-
   function addActivePieceToBoard() {
     boardContext.addPieceToBoard(pieceMap[pieceZ], pieceX, pieceY, pieceColor);
     setPieceMap(randomPieceMap());
@@ -262,7 +232,6 @@ function Game() {
       case "RUNNING":
         if (previousGameState == "GAME OVER") {
           initializeEmptyBoard();
-          // setBoard(emptyBoard);
           boardContext.emptyBoard();
           setPieceMap(randomPieceMap());
           setPieceZ(PiecePositionZType.UP);
@@ -289,10 +258,6 @@ function Game() {
   useEffect(() => {
     detectCollision();
   }, [pieceY, pieceX]);
-
-  // useEffect(() => {
-  //   detectLines();
-  // }, [BoardContext.board]);
 
   // console.log("Rendering (Y = " + pieceY + ")");
 
