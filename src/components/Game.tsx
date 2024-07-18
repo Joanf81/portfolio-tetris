@@ -263,7 +263,7 @@ function Game() {
 
   return (
     <div tabIndex={1} className="bg-white" onKeyDown={handleKeyDown}>
-      <Board board={boardContext.board}>
+      <Board>
         <GameOverScreen
           show={gameState == "GAME OVER"}
           restartGame={() => setGameState("RUNNING")}
