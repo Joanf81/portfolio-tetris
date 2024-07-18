@@ -22,61 +22,9 @@ import GameOverScreen from "../components/GameOverScreen";
 import PausedScreen from "../components/PausedScreen";
 import { randomPieceMap, randomPieceColor } from "../lib/pieces";
 import { BoardContext } from "../store/BoardContext";
+import { ActivePieceContext } from "../store/ActivePieceContext";
 
 type gameStateType = "INITIAL" | "RUNNING" | "PAUSED" | "GAME OVER";
-
-let emptyBoard: blockType[][] = [];
-
-function initializeEmptyBoard() {
-  for (let y = 0; y < boardRowsNumber; y++) {
-    emptyBoard[y] = [];
-    for (let x = 0; x < boardColsNumber; x++) {
-      if (
-        y == 0 ||
-        x == 0 ||
-        y == boardRowsNumber - 1 ||
-        x == boardColsNumber - 1
-      ) {
-        emptyBoard[y][x] = "border";
-      } else {
-        emptyBoard[y][x] = "empty";
-      }
-    }
-  }
-}
-
-function addWallToBoard() {
-  const board = emptyBoard.map((row, y) => {
-    return row.map((element, x) => {
-      if (y > 5 && x === 8) {
-        return "red";
-      } else {
-        return element;
-      }
-    });
-  });
-
-  emptyBoard = board;
-}
-
-function copyBoard(board: boardType) {
-  return board.map((arr) => {
-    return arr.slice();
-  });
-}
-
-const emptyBoardLine: Array<blockType> = [];
-
-for (let i = 0; i < boardColsNumber; i++) {
-  if (i === 0 || i === boardColsNumber - 1) {
-    emptyBoardLine.push("border");
-  } else {
-    emptyBoardLine.push("empty");
-  }
-}
-
-initializeEmptyBoard();
-// addWallToBoard();
 
 function Game() {
   const gameTimerID = useRef<number>(0);
@@ -87,15 +35,16 @@ function Game() {
 
   // const [board, setBoard] = useState<boardType>(emptyBoard);
   const boardContext = useContext(BoardContext);
-  const [pieceMap, setPieceMap] = useState<pieceMapListType>(randomPieceMap());
-  const [pieceColor, setPieceColor] = useState<PieceColor>(randomPieceColor());
-  const [pieceX, setPieceX] = useState<number>(1);
-  const [pieceY, setPieceY] = useState<number>(2);
-  const [pieceZ, setPieceZ] = useState<PiecePositionZType>(0);
+  const activePieceContext = useContext(ActivePieceContext);
+  // const [pieceMap, setPieceMap] = useState<pieceMapListType>(randomPieceMap());
+  // const [pieceColor, setPieceColor] = useState<PieceColor>(randomPieceColor());
+  // const [pieceX, setPieceX] = useState<number>(1);
+  // const [pieceY, setPieceY] = useState<number>(2);
+  // const [pieceZ, setPieceZ] = useState<PiecePositionZType>(0);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.code === "ArrowRight") {
-      movePieceRight();
+      activePieceContext.moveRight();
     } else if (e.code === "ArrowLeft") {
       movePieceLeft();
     } else if (e.code === "ArrowUp") {
@@ -108,23 +57,6 @@ function Game() {
       } else if (gameState == "PAUSED") {
         setGameState("RUNNING");
       }
-    }
-  }
-
-  function movePieceRight() {
-    if (
-      pieceX + activePieceXSize.current < boardColsNumber - 1 &&
-      !isCollisionAgainstPiece(
-        boardContext.board,
-        pieceMap[pieceZ],
-        pieceX,
-        pieceY,
-        {
-          incrementX: 1,
-        }
-      )
-    ) {
-      setPieceX((oldXPosition) => oldXPosition + 1);
     }
   }
 
