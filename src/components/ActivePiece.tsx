@@ -7,13 +7,11 @@ import { ActivePieceContext } from "../store/ActivePieceContext";
 
 interface ActivePieceProps {
   PieceColor: PieceColor;
-  pieceMap: PieceMap;
   positionY: number;
 }
 
 export default function ActivePiece({
   PieceColor,
-  pieceMap,
   positionY,
 }: ActivePieceProps) {
   const activePieceContext = useContext(ActivePieceContext);
@@ -34,7 +32,7 @@ export default function ActivePiece({
       className={`z-20 absolute top-[var(--position-y)] left-[var(--position-x)]`}
     >
       <div className="relative">
-        {pieceMap.map((row, rowIndex) => {
+        {activePieceContext.currentPieceMap.map((row, rowIndex) => {
           return row.map((piece, colIndex) => {
             if (piece === X) {
               return (

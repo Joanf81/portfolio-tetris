@@ -5,6 +5,7 @@ import {
   pieceMapListType,
   PieceColor,
   colorList,
+  PiecePositionZType,
 } from "../types";
 
 // Piece maps
@@ -66,6 +67,20 @@ export function randomPieceMap(): pieceMapListType {
 // Colors
 export function randomPieceColor(): PieceColor {
   return colorList[Math.floor(Math.random() * colorList.length)];
+}
+
+// Rotations
+export function nextPositionZ(positionZ: PiecePositionZType) {
+  switch (positionZ) {
+    case PiecePositionZType.UP:
+      return PiecePositionZType.RIGHT;
+    case PiecePositionZType.RIGHT:
+      return PiecePositionZType.DOWN;
+    case PiecePositionZType.DOWN:
+      return PiecePositionZType.LEFT;
+    case PiecePositionZType.LEFT:
+      return PiecePositionZType.UP;
+  }
 }
 
 // Secondary unctions:

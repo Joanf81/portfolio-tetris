@@ -6,12 +6,13 @@ import {
 } from "react";
 import {
   PieceColor,
+  PieceMap,
   PiecePositionZType,
   boardType,
   pieceMapListType,
 } from "../types";
-import { randomPieceColor, randomPieceMap } from "../lib/pieces";
-import { isCollisionAgainstPiece } from "../lib/collisions";
+import { nextPositionZ, randomPieceColor, randomPieceMap } from "../lib/pieces";
+import { isCollisionAgainstPiece as pieceCollision } from "../lib/collisions";
 import { BoardContext } from "./BoardContext";
 import { boardColsNumber } from "../config";
 
@@ -27,8 +28,10 @@ interface ActivePieceContextType {
   positionX: number;
   positionY: number;
   positionZ: PiecePositionZType;
+  currentPieceMap: PieceMap;
   moveRight: () => void;
   moveLeft: () => void;
+  rotate: () => void;
 }
 
 type movePieceRightAction = {
@@ -36,8 +39,12 @@ type movePieceRightAction = {
   payload: { board: boardType };
 };
 type movePieceLeftAction = { type: "MOVE_LEFT"; payload: { board: boardType } };
+type rotatePieceAction = { type: "ROTATE"; payload: { board: boardType } };
 
-type activePieceActionType = movePieceRightAction | movePieceLeftAction;
+type activePieceActionType =
+  | movePieceRightAction
+  | movePieceLeftAction
+  | rotatePieceAction;
 
 export const ActivePieceContext = createContext<ActivePieceContextType>({
   maps: { 0: [], 1: [], 2: [], 3: [] },
@@ -45,9 +52,46 @@ export const ActivePieceContext = createContext<ActivePieceContextType>({
   positionX: 0,
   positionY: 0,
   positionZ: 0,
+  currentPieceMap: [],
   moveRight: () => {},
   moveLeft: () => {},
+  rotate: () => {},
 });
+
+// function rotatePiece() {
+//   const nextPieceMap: PieceMap = pieceMap[nextPieceType(Z)];
+//   const activePieceXSize = nextPieceMap.length;
+
+//   if (
+//     activePieceContext.positionX + activePieceXSize <= boardColsNumber - 1 &&
+//     !pieceCollision(
+//       boardContext.board,
+//       nextPieceMap,
+//       activePieceContext.positionX,
+//       pieceY,
+//       {
+//         incrementX: 1,
+//       }
+//     )
+//   ) {
+//     setPieceZ(() => nextPieceType());
+//   } else {
+//     if (
+//       !isCollisionAgainstPiece(
+//         boardContext.board,
+//         nextPieceMap,
+//         activePieceContext.positionX,
+//         pieceY,
+//         {
+//           incrementX: -1,
+//         }
+//       )
+//     ) {
+//       setPieceZ(() => nextPieceType());
+//       setPieceX((oldXPosition) => oldXPosition - 1);
+//     }
+//   }
+// }
 
 function activePieceReducer(
   state: ActivePieceContextType,
@@ -60,23 +104,44 @@ function activePieceReducer(
     case "MOVE_RIGHT":
       if (
         X + maps[Z].length < boardColsNumber - 1 &&
-        !isCollisionAgainstPiece(action.payload.board, maps[Z], X, Y, {
+        !pieceCollision(action.payload.board, maps[Z], X, Y, {
           incrementX: 1,
         })
       ) {
         return { ...state, positionX: X + 1 };
       }
       break;
+
     case "MOVE_LEFT":
       if (
         X > 1 &&
-        !isCollisionAgainstPiece(board, maps[Z], X, Y, {
+        !pieceCollision(board, maps[Z], X, Y, {
           incrementX: -1,
         })
       ) {
         return { ...state, positionX: X - 1 };
       }
       break;
+
+    case "ROTATE":
+      const nextMap: PieceMap = maps[nextPositionZ(Z)];
+
+      if (
+        X + nextMap.length <= boardColsNumber - 1 &&
+        !pieceCollision(board, nextMap, X, Y, {
+          incrementX: 1,
+        })
+      ) {
+        return { ...state, positionZ: nextPositionZ(Z) };
+      } else {
+        if (
+          !pieceCollision(board, nextMap, X, Y, {
+            incrementX: -1,
+          })
+        ) {
+          return { ...state, positionX: X - 1, positionZ: nextPositionZ(Z) };
+        }
+      }
   }
 
   return state;
@@ -85,16 +150,19 @@ function activePieceReducer(
 export default function ActivePieceContextProvider({
   children,
 }: PropsWithChildren) {
+  const initialRandomPieceMaps = randomPieceMap();
   const [activePieceState, activePieceDispatch] = useReducer(
     activePieceReducer,
     {
-      maps: randomPieceMap(),
+      maps: initialRandomPieceMaps,
       color: randomPieceColor(),
       positionX: 1,
       positionY: 2,
       positionZ: 0,
+      currentPieceMap: initialRandomPieceMaps[0],
       moveRight: () => {},
       moveLeft: () => {},
+      rotate: () => {},
     }
   );
 
@@ -114,14 +182,23 @@ export default function ActivePieceContextProvider({
     });
   }
 
+  function rotatePiece() {
+    activePieceDispatch({
+      type: "ROTATE",
+      payload: { board: boardContext.board },
+    });
+  }
+
   const activePieceStateValue = {
     maps: activePieceState.maps,
     color: activePieceState.color,
     positionX: activePieceState.positionX,
     positionY: activePieceState.positionY,
     positionZ: activePieceState.positionZ,
+    currentPieceMap: activePieceState.maps[activePieceState.positionZ],
     moveRight: movePieceRight,
     moveLeft: movePieceLeft,
+    rotate: rotatePiece,
   };
 
   return (

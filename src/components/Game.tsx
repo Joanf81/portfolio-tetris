@@ -49,7 +49,7 @@ function Game() {
     } else if (e.code === "ArrowLeft") {
       activePieceContext.moveLeft();
     } else if (e.code === "ArrowUp") {
-      rotatePiece();
+      activePieceContext.rotate();
     } else if (e.code === "ArrowDown") {
       setPieceY((oldYPosition) => oldYPosition + 1);
     } else if (e.code === "KeyP") {
@@ -61,60 +61,15 @@ function Game() {
     }
   }
 
-  function nextPieceType() {
-    switch (pieceZ) {
-      case PiecePositionZType.UP:
-        return PiecePositionZType.RIGHT;
-      case PiecePositionZType.RIGHT:
-        return PiecePositionZType.DOWN;
-      case PiecePositionZType.DOWN:
-        return PiecePositionZType.LEFT;
-      case PiecePositionZType.LEFT:
-        return PiecePositionZType.UP;
-    }
-  }
-
-  function rotatePiece() {
-    const nextPieceMap: PieceMap = pieceMap[nextPieceType()];
-    const activePieceXSize = nextPieceMap.length;
-
-    if (
-      activePieceContext.positionX + activePieceXSize <= boardColsNumber - 1 &&
-      !isCollisionAgainstPiece(
-        boardContext.board,
-        nextPieceMap,
-        activePieceContext.positionX,
-        pieceY,
-        {
-          incrementX: 1,
-        }
-      )
-    ) {
-      setPieceZ(() => nextPieceType());
-    } else {
-      if (
-        !isCollisionAgainstPiece(
-          boardContext.board,
-          nextPieceMap,
-          activePieceContext.positionX,
-          pieceY,
-          {
-            incrementX: -1,
-          }
-        )
-      ) {
-        setPieceZ(() => nextPieceType());
-        setPieceX((oldXPosition) => oldXPosition - 1);
-      }
-    }
-  }
-
   function detectCollision() {
     if (
-      isCollisionAgainstBoardLimit(pieceMap[pieceZ], pieceY) ||
+      isCollisionAgainstBoardLimit(
+        activePieceContext.currentPieceMap,
+        pieceY
+      ) ||
       isCollisionAgainstPiece(
         boardContext.board,
-        pieceMap[pieceZ],
+        activePieceContext.currentPieceMap,
         activePieceContext.positionX,
         pieceY,
         {
@@ -138,7 +93,7 @@ function Game() {
 
   function addActivePieceToBoard() {
     boardContext.addPieceToBoard(
-      pieceMap[pieceZ],
+      activePieceContext.currentPieceMap,
       activePieceContext.positionX,
       pieceY,
       pieceColor
@@ -192,11 +147,7 @@ function Game() {
           show={gameState == "PAUSED"}
           resumeGame={() => setGameState("RUNNING")}
         />
-        <ActivePiece
-          PieceColor={pieceColor}
-          pieceMap={pieceMap[pieceZ]}
-          positionY={pieceY}
-        />
+        <ActivePiece PieceColor={pieceColor} positionY={pieceY} />
       </Board>
     </div>
   );
