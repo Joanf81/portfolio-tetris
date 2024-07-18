@@ -28,6 +28,7 @@ interface ActivePieceContextType {
   positionY: number;
   positionZ: PiecePositionZType;
   moveRight: () => void;
+  moveLeft: () => void;
 }
 
 type movePieceRightAction = {
@@ -45,6 +46,7 @@ export const ActivePieceContext = createContext<ActivePieceContextType>({
   positionY: 0,
   positionZ: 0,
   moveRight: () => {},
+  moveLeft: () => {},
 });
 
 function activePieceReducer(
@@ -52,6 +54,7 @@ function activePieceReducer(
   action: activePieceActionType
 ) {
   const { maps, color, positionX: X, positionY: Y, positionZ: Z } = state;
+  const { board } = action.payload;
 
   switch (action.type) {
     case "MOVE_RIGHT":
@@ -62,6 +65,16 @@ function activePieceReducer(
         })
       ) {
         return { ...state, positionX: X + 1 };
+      }
+      break;
+    case "MOVE_LEFT":
+      if (
+        X > 1 &&
+        !isCollisionAgainstPiece(board, maps[Z], X, Y, {
+          incrementX: -1,
+        })
+      ) {
+        return { ...state, positionX: X - 1 };
       }
       break;
   }
@@ -81,6 +94,7 @@ export default function ActivePieceContextProvider({
       positionY: 2,
       positionZ: 0,
       moveRight: () => {},
+      moveLeft: () => {},
     }
   );
 
@@ -93,6 +107,13 @@ export default function ActivePieceContextProvider({
     });
   }
 
+  function movePieceLeft() {
+    activePieceDispatch({
+      type: "MOVE_LEFT",
+      payload: { board: boardContext.board },
+    });
+  }
+
   const activePieceStateValue = {
     maps: activePieceState.maps,
     color: activePieceState.color,
@@ -100,6 +121,7 @@ export default function ActivePieceContextProvider({
     positionY: activePieceState.positionY,
     positionZ: activePieceState.positionZ,
     moveRight: movePieceRight,
+    moveLeft: movePieceLeft,
   };
 
   return (

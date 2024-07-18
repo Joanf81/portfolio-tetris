@@ -36,17 +36,18 @@ function Game() {
   // const [board, setBoard] = useState<boardType>(emptyBoard);
   const boardContext = useContext(BoardContext);
   const activePieceContext = useContext(ActivePieceContext);
-  // const [pieceMap, setPieceMap] = useState<pieceMapListType>(randomPieceMap());
-  // const [pieceColor, setPieceColor] = useState<PieceColor>(randomPieceColor());
-  // const [pieceX, setPieceX] = useState<number>(1);
-  // const [pieceY, setPieceY] = useState<number>(2);
-  // const [pieceZ, setPieceZ] = useState<PiecePositionZType>(0);
+
+  const [pieceMap, setPieceMap] = useState<pieceMapListType>(randomPieceMap());
+  const [pieceColor, setPieceColor] = useState<PieceColor>(randomPieceColor());
+  const [pieceX, setPieceX] = useState<number>(1);
+  const [pieceY, setPieceY] = useState<number>(2);
+  const [pieceZ, setPieceZ] = useState<PiecePositionZType>(0);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.code === "ArrowRight") {
       activePieceContext.moveRight();
     } else if (e.code === "ArrowLeft") {
-      movePieceLeft();
+      activePieceContext.moveLeft();
     } else if (e.code === "ArrowUp") {
       rotatePiece();
     } else if (e.code === "ArrowDown") {
@@ -57,23 +58,6 @@ function Game() {
       } else if (gameState == "PAUSED") {
         setGameState("RUNNING");
       }
-    }
-  }
-
-  function movePieceLeft() {
-    if (
-      pieceX > 1 &&
-      !isCollisionAgainstPiece(
-        boardContext.board,
-        pieceMap[pieceZ],
-        pieceX,
-        pieceY,
-        {
-          incrementX: -1,
-        }
-      )
-    ) {
-      setPieceX((oldXPosition) => oldXPosition - 1);
     }
   }
 
@@ -95,11 +79,11 @@ function Game() {
     const activePieceXSize = nextPieceMap.length;
 
     if (
-      pieceX + activePieceXSize <= boardColsNumber - 1 &&
+      activePieceContext.positionX + activePieceXSize <= boardColsNumber - 1 &&
       !isCollisionAgainstPiece(
         boardContext.board,
         nextPieceMap,
-        pieceX,
+        activePieceContext.positionX,
         pieceY,
         {
           incrementX: 1,
@@ -112,7 +96,7 @@ function Game() {
         !isCollisionAgainstPiece(
           boardContext.board,
           nextPieceMap,
-          pieceX,
+          activePieceContext.positionX,
           pieceY,
           {
             incrementX: -1,
@@ -131,7 +115,7 @@ function Game() {
       isCollisionAgainstPiece(
         boardContext.board,
         pieceMap[pieceZ],
-        pieceX,
+        activePieceContext.positionX,
         pieceY,
         {
           incrementY: 1,
@@ -153,7 +137,12 @@ function Game() {
   }
 
   function addActivePieceToBoard() {
-    boardContext.addPieceToBoard(pieceMap[pieceZ], pieceX, pieceY, pieceColor);
+    boardContext.addPieceToBoard(
+      pieceMap[pieceZ],
+      activePieceContext.positionX,
+      pieceY,
+      pieceColor
+    );
     setPieceMap(randomPieceMap());
     setPieceZ(PiecePositionZType.UP);
     setPieceColor(randomPieceColor());
@@ -163,7 +152,6 @@ function Game() {
     switch (gameState) {
       case "RUNNING":
         if (previousGameState == "GAME OVER") {
-          initializeEmptyBoard();
           boardContext.emptyBoard();
           setPieceMap(randomPieceMap());
           setPieceZ(PiecePositionZType.UP);
@@ -189,7 +177,7 @@ function Game() {
   // Everytime Y postion on active piece gets updated:
   useEffect(() => {
     detectCollision();
-  }, [pieceY, pieceX]);
+  }, [pieceY, activePieceContext.positionX]);
 
   // console.log("Rendering (Y = " + pieceY + ")");
 
@@ -207,7 +195,6 @@ function Game() {
         <ActivePiece
           PieceColor={pieceColor}
           pieceMap={pieceMap[pieceZ]}
-          positionX={pieceX}
           positionY={pieceY}
         />
       </Board>
