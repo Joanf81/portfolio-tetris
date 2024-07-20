@@ -55,7 +55,7 @@ function createEmptyBoard(): boardType {
   return emptyBoard;
 }
 
-interface BoardContextType {
+export interface BoardContextType {
   board: boardType;
   emptyBoard: () => void;
   addPieceToBoard: (

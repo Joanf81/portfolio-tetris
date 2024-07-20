@@ -1,23 +1,15 @@
 import { blockSize } from "./../config";
-import { PieceMap, X, PieceColor } from "../types";
+import { X } from "../types";
 
 import Block from "./Block";
 import { useContext } from "react";
 import { ActivePieceContext } from "../store/ActivePieceContext";
 
-interface ActivePieceProps {
-  PieceColor: PieceColor;
-  positionY: number;
-}
-
-export default function ActivePiece({
-  PieceColor,
-  positionY,
-}: ActivePieceProps) {
+export default function ActivePiece() {
   const activePieceContext = useContext(ActivePieceContext);
 
   const x = activePieceContext.positionX * blockSize;
-  const y = positionY * blockSize;
+  const y = activePieceContext.positionY * blockSize;
 
   const style = {
     "--position-x": `${x}px`,
@@ -38,7 +30,7 @@ export default function ActivePiece({
                   absolute
                   positionX={colIndex}
                   positionY={rowIndex}
-                  type={PieceColor}
+                  type={activePieceContext.color}
                 ></Block>
               );
             }
