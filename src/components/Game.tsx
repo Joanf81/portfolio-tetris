@@ -51,7 +51,7 @@ function Game() {
     } else if (e.code === "ArrowUp") {
       activePieceContext.rotate();
     } else if (e.code === "ArrowDown") {
-      setPieceY((oldYPosition) => oldYPosition + 1);
+      activePieceContext.moveDown();
     } else if (e.code === "KeyP") {
       if (gameState == "RUNNING") {
         setGameState("PAUSED");
@@ -114,7 +114,7 @@ function Game() {
           setPieceY(1);
         }
         gameTimerID.current = setInterval(() => {
-          setPieceY((oldYPosition) => oldYPosition + 1);
+          activePieceContext.moveDown();
         }, refreshRate);
         break;
       case "PAUSED":

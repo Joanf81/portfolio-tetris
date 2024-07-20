@@ -31,6 +31,7 @@ interface ActivePieceContextType {
   currentPieceMap: PieceMap;
   moveRight: () => void;
   moveLeft: () => void;
+  moveDown: () => void;
   rotate: () => void;
 }
 
@@ -39,12 +40,14 @@ type movePieceRightAction = {
   payload: { board: boardType };
 };
 type movePieceLeftAction = { type: "MOVE_LEFT"; payload: { board: boardType } };
+type movePieceDownAction = { type: "MOVE_DOWN" };
 type rotatePieceAction = { type: "ROTATE"; payload: { board: boardType } };
 
 type activePieceActionType =
   | movePieceRightAction
   | movePieceLeftAction
-  | rotatePieceAction;
+  | rotatePieceAction
+  | movePieceDownAction;
 
 export const ActivePieceContext = createContext<ActivePieceContextType>({
   maps: { 0: [], 1: [], 2: [], 3: [] },
@@ -55,53 +58,21 @@ export const ActivePieceContext = createContext<ActivePieceContextType>({
   currentPieceMap: [],
   moveRight: () => {},
   moveLeft: () => {},
+  moveDown: () => {},
   rotate: () => {},
 });
-
-// function rotatePiece() {
-//   const nextPieceMap: PieceMap = pieceMap[nextPieceType(Z)];
-//   const activePieceXSize = nextPieceMap.length;
-
-//   if (
-//     activePieceContext.positionX + activePieceXSize <= boardColsNumber - 1 &&
-//     !pieceCollision(
-//       boardContext.board,
-//       nextPieceMap,
-//       activePieceContext.positionX,
-//       pieceY,
-//       {
-//         incrementX: 1,
-//       }
-//     )
-//   ) {
-//     setPieceZ(() => nextPieceType());
-//   } else {
-//     if (
-//       !isCollisionAgainstPiece(
-//         boardContext.board,
-//         nextPieceMap,
-//         activePieceContext.positionX,
-//         pieceY,
-//         {
-//           incrementX: -1,
-//         }
-//       )
-//     ) {
-//       setPieceZ(() => nextPieceType());
-//       setPieceX((oldXPosition) => oldXPosition - 1);
-//     }
-//   }
-// }
 
 function activePieceReducer(
   state: ActivePieceContextType,
   action: activePieceActionType
 ) {
   const { maps, color, positionX: X, positionY: Y, positionZ: Z } = state;
-  const { board } = action.payload;
+  let board;
 
   switch (action.type) {
     case "MOVE_RIGHT":
+      ({ board } = action.payload);
+
       if (
         X + maps[Z].length < boardColsNumber - 1 &&
         !pieceCollision(action.payload.board, maps[Z], X, Y, {
@@ -113,6 +84,8 @@ function activePieceReducer(
       break;
 
     case "MOVE_LEFT":
+      ({ board } = action.payload);
+
       if (
         X > 1 &&
         !pieceCollision(board, maps[Z], X, Y, {
@@ -123,7 +96,11 @@ function activePieceReducer(
       }
       break;
 
+    case "MOVE_DOWN":
+      return { ...state, positionY: Y + 1 };
+
     case "ROTATE":
+      ({ board } = action.payload);
       const nextMap: PieceMap = maps[nextPositionZ(Z)];
 
       if (
@@ -162,6 +139,7 @@ export default function ActivePieceContextProvider({
       currentPieceMap: initialRandomPieceMaps[0],
       moveRight: () => {},
       moveLeft: () => {},
+      moveDown: () => {},
       rotate: () => {},
     }
   );
@@ -182,6 +160,10 @@ export default function ActivePieceContextProvider({
     });
   }
 
+  function movePieceDown() {
+    activePieceDispatch({ type: "MOVE_DOWN" });
+  }
+
   function rotatePiece() {
     activePieceDispatch({
       type: "ROTATE",
@@ -198,6 +180,7 @@ export default function ActivePieceContextProvider({
     currentPieceMap: activePieceState.maps[activePieceState.positionZ],
     moveRight: movePieceRight,
     moveLeft: movePieceLeft,
+    moveDown: movePieceDown,
     rotate: rotatePiece,
   };
 

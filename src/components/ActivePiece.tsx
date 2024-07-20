@@ -24,8 +24,6 @@ export default function ActivePiece({
     "--position-y": `${y}px`,
   } as React.CSSProperties;
 
-  console.log(PieceColor);
-
   return (
     <div
       style={style}
