@@ -88,15 +88,17 @@ function activePieceReducer(
   state: ActivePieceContextType,
   action: activePieceActionType
 ) {
-  const { maps, color, positionX: X, positionY: Y, positionZ: Z } = state;
+  const { maps, positionX: X, positionY: Y, positionZ: Z } = state;
   let board;
 
   switch (action.type) {
     case "MOVE_RIGHT":
       ({ board } = action.payload);
 
+      console.log(maps[Z]);
+
       if (
-        X + maps[Z].length < boardColsNumber - 1 &&
+        X + maps[Z][0].length < boardColsNumber - 1 &&
         !pieceCollision(board, maps[Z], X, Y, { incrementX: 1 })
       ) {
         return { ...state, positionX: X + 1 };
@@ -119,12 +121,11 @@ function activePieceReducer(
         isCollisionAgainstBoardLimit(maps[Z], Y) ||
         isCollisionAgainstPiece(board, maps[Z], X, Y, { incrementY: 1 })
       ) {
-        // Collision agains top limit
+        // Collision against top limit
         if (Y <= 1) {
           // setGameState("GAME OVER");
         } else {
           addPieceToBoard();
-          // return { ...state, ...getResetedActivePiece() };
         }
       } else {
         return { ...state, positionY: Y + 1 };
