@@ -10,6 +10,7 @@ import GameOverScreen from "../components/GameOverScreen";
 import PausedScreen from "../components/PausedScreen";
 import { BoardContext } from "../store/BoardContext";
 import { ActivePieceContext } from "../store/ActivePieceContext";
+import KeyBoardEventListener from "./KeyBoardEventListener";
 
 type gameStateType = "INITIAL" | "RUNNING" | "PAUSED" | "GAME OVER";
 
@@ -19,27 +20,8 @@ function Game() {
   const [gameState, setGameState] = useState<gameStateType>("INITIAL");
   const previousGameState = usePrevious(gameState);
 
-  // const [board, setBoard] = useState<boardType>(emptyBoard);
   const boardContext = useContext(BoardContext);
   const activePieceContext = useContext(ActivePieceContext);
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.code === "ArrowRight") {
-      activePieceContext.moveRight();
-    } else if (e.code === "ArrowLeft") {
-      activePieceContext.moveLeft();
-    } else if (e.code === "ArrowUp") {
-      activePieceContext.rotate();
-    } else if (e.code === "ArrowDown") {
-      activePieceContext.moveDown();
-    } else if (e.code === "KeyP") {
-      if (gameState == "RUNNING") {
-        setGameState("PAUSED");
-      } else if (gameState == "PAUSED") {
-        setGameState("RUNNING");
-      }
-    }
-  }
 
   useEffect(() => {
     switch (gameState) {
@@ -71,7 +53,8 @@ function Game() {
   }, []);
 
   return (
-    <div tabIndex={1} className="bg-white" onKeyDown={handleKeyDown}>
+    <div tabIndex={1} className="bg-white">
+      <KeyBoardEventListener />
       <Board>
         <GameOverScreen
           show={gameState == "GAME OVER"}

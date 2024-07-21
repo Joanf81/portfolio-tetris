@@ -139,7 +139,6 @@ function activePieceReducer(
       if (borderDistance >= 0 && !pieceCollision(board, nextMap, X, Y, {})) {
         return { ...state, positionZ: nextPositionZ(Z) };
       } else if (borderDistance < 0) {
-        console.log(borderDistance);
         if (
           !pieceCollision(board, nextMap, X, Y, { incrementX: borderDistance })
         ) {
