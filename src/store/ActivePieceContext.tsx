@@ -171,20 +171,18 @@ export default function ActivePieceContextProvider({
   });
 
   const { board, ...boardContext } = useContext(BoardContext);
-
-  const [a, setA] = useState(false);
+  const [addPieceToBoard, setAddPieceToBoard] = useState(false);
 
   useEffect(() => {
-    console.log(a);
-    if (a === true) {
+    if (addPieceToBoard) {
       boardContext.addPieceToBoard(activePieceState.maps[Z], X, Y, color);
-      setA(false);
+      setAddPieceToBoard(false);
 
       return () => {
         restartPiece();
       };
     }
-  }, [a]);
+  }, [addPieceToBoard]);
 
   function movePieceRight(): void {
     activePieceDispatch({
@@ -206,7 +204,7 @@ export default function ActivePieceContextProvider({
       payload: {
         board: board,
         addPieceToBoard: () => {
-          setA(true);
+          setAddPieceToBoard(true);
         },
       },
     });
