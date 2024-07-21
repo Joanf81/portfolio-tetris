@@ -95,8 +95,6 @@ function activePieceReducer(
     case "MOVE_RIGHT":
       ({ board } = action.payload);
 
-      console.log(maps[Z]);
-
       if (
         X + maps[Z][0].length < boardColsNumber - 1 &&
         !pieceCollision(board, maps[Z], X, Y, { incrementX: 1 })
@@ -135,14 +133,22 @@ function activePieceReducer(
     case "ROTATE":
       ({ board } = action.payload);
       const nextMap: PieceMap = maps[nextPositionZ(Z)];
+      const borderDistance = boardColsNumber - 1 - (X + nextMap[0].length);
 
-      if (
-        X + nextMap.length <= boardColsNumber - 1 &&
-        !pieceCollision(board, nextMap, X, Y, { incrementX: 1 })
-      ) {
+      // If there is no collision against right border and against any piece
+      if (borderDistance >= 0 && !pieceCollision(board, nextMap, X, Y, {})) {
         return { ...state, positionZ: nextPositionZ(Z) };
-      } else if (!pieceCollision(board, nextMap, X, Y, { incrementX: -1 })) {
-        return { ...state, positionX: X - 1, positionZ: nextPositionZ(Z) };
+      } else if (borderDistance < 0) {
+        console.log(borderDistance);
+        if (
+          !pieceCollision(board, nextMap, X, Y, { incrementX: borderDistance })
+        ) {
+          return {
+            ...state,
+            positionX: X + borderDistance,
+            positionZ: nextPositionZ(Z),
+          };
+        }
       }
       break;
 

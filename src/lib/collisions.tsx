@@ -6,7 +6,7 @@ export function isCollisionAgainstPiece(
   activePieceMap: PieceMap,
   pieceX: number,
   pieceY: number,
-  increments: Hash<"incrementX" | "incrementY", 1 | -1>
+  increments: Hash<"incrementX" | "incrementY", number>
 ): boolean {
   let collision = false;
 
