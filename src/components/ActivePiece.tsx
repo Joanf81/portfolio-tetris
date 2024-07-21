@@ -22,7 +22,7 @@ export default function ActivePiece() {
       className={`z-20 absolute top-[var(--position-y)] left-[var(--position-x)]`}
     >
       <div className="relative">
-        {activePieceContext.currentPieceMap.map((row, rowIndex) => {
+        {activePieceContext.currentMap().map((row, rowIndex) => {
           return row.map((piece, colIndex) => {
             if (piece === X) {
               return (

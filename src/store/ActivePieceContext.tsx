@@ -2,7 +2,9 @@ import {
   PropsWithChildren,
   createContext,
   useContext,
+  useEffect,
   useReducer,
+  useState,
 } from "react";
 import {
   PieceColor,
@@ -17,7 +19,7 @@ import {
   isCollisionAgainstPiece,
   isCollisionAgainstPiece as pieceCollision,
 } from "../lib/collisions";
-import { BoardContext, BoardContextType } from "./BoardContext";
+import { BoardContext } from "./BoardContext";
 import { boardColsNumber } from "../config";
 
 interface ActivePieceContextType {
@@ -26,7 +28,7 @@ interface ActivePieceContextType {
   positionX: number;
   positionY: number;
   positionZ: PiecePositionZType;
-  currentPieceMap: PieceMap;
+  currentMap: () => PieceMap;
   moveRight: () => void;
   moveLeft: () => void;
   moveDown: () => void;
@@ -43,7 +45,7 @@ type movePieceDownAction = {
   type: "MOVE_DOWN";
   payload: {
     board: boardType;
-    addPieceToBoard: BoardContextType["addPieceToBoard"];
+    addPieceToBoard: () => void;
   };
 };
 type rotatePieceAction = { type: "ROTATE"; payload: { board: boardType } };
@@ -62,7 +64,9 @@ export const ActivePieceContext = createContext<ActivePieceContextType>({
   positionX: 0,
   positionY: 0,
   positionZ: PiecePositionZType.UP,
-  currentPieceMap: [],
+  currentMap: () => {
+    return [];
+  },
   moveRight: () => {},
   moveLeft: () => {},
   moveDown: () => {},
@@ -70,18 +74,21 @@ export const ActivePieceContext = createContext<ActivePieceContextType>({
   restart: () => {},
 });
 
+function getResetedActivePiece() {
+  return {
+    positionX: 1,
+    positionY: 1,
+    positionZ: PiecePositionZType.UP,
+    color: randomPieceColor(),
+    maps: randomPieceMap(),
+  };
+}
+
 function activePieceReducer(
   state: ActivePieceContextType,
   action: activePieceActionType
 ) {
-  const {
-    maps,
-    color,
-    currentPieceMap,
-    positionX: X,
-    positionY: Y,
-    positionZ: Z,
-  } = state;
+  const { maps, color, positionX: X, positionY: Y, positionZ: Z } = state;
   let board;
 
   switch (action.type) {
@@ -109,23 +116,15 @@ function activePieceReducer(
       ({ board, addPieceToBoard } = action.payload);
 
       if (
-        isCollisionAgainstBoardLimit(currentPieceMap, Y) ||
-        isCollisionAgainstPiece(board, currentPieceMap, X, Y, { incrementY: 1 })
+        isCollisionAgainstBoardLimit(maps[Z], Y) ||
+        isCollisionAgainstPiece(board, maps[Z], X, Y, { incrementY: 1 })
       ) {
         // Collision agains top limit
         if (Y <= 1) {
           // setGameState("GAME OVER");
         } else {
-          const actualColor = color;
-          addPieceToBoard(currentPieceMap, X, Y, actualColor);
-          return {
-            ...state,
-            positionX: 1,
-            positionY: 1,
-            positionZ: PiecePositionZType.UP,
-            color: randomPieceColor(),
-            maps: randomPieceMap(),
-          };
+          addPieceToBoard();
+          // return { ...state, ...getResetedActivePiece() };
         }
       } else {
         return { ...state, positionY: Y + 1 };
@@ -140,30 +139,14 @@ function activePieceReducer(
         X + nextMap.length <= boardColsNumber - 1 &&
         !pieceCollision(board, nextMap, X, Y, { incrementX: 1 })
       ) {
-        return {
-          ...state,
-          positionZ: nextPositionZ(Z),
-          currentMap: maps[nextPositionZ(Z)],
-        };
+        return { ...state, positionZ: nextPositionZ(Z) };
       } else if (!pieceCollision(board, nextMap, X, Y, { incrementX: -1 })) {
-        return {
-          ...state,
-          positionX: X - 1,
-          positionZ: nextPositionZ(Z),
-          currentMap: maps[nextPositionZ(Z)],
-        };
+        return { ...state, positionX: X - 1, positionZ: nextPositionZ(Z) };
       }
       break;
 
     case "RESTART":
-      return {
-        ...state,
-        positionX: 1,
-        positionY: 1,
-        positionZ: PiecePositionZType.UP,
-        color: randomPieceColor(),
-        maps: randomPieceMap(),
-      };
+      return { ...state, ...getResetedActivePiece() };
   }
 
   return state;
@@ -172,32 +155,36 @@ function activePieceReducer(
 export default function ActivePieceContextProvider({
   children,
 }: PropsWithChildren) {
-  const initialRandomPieceMaps = randomPieceMap();
   const [
-    {
-      color,
-      currentPieceMap,
-      positionX: X,
-      positionY: Y,
-      positionZ: Z,
-      ...activePieceState
-    },
+    { color, positionX: X, positionY: Y, positionZ: Z, ...activePieceState },
     activePieceDispatch,
   ] = useReducer(activePieceReducer, {
-    maps: initialRandomPieceMaps,
-    color: randomPieceColor(),
-    positionX: 1,
-    positionY: 2,
-    positionZ: PiecePositionZType.UP,
-    currentPieceMap: initialRandomPieceMaps[0],
+    ...getResetedActivePiece(),
     moveRight: () => {},
     moveLeft: () => {},
     moveDown: () => {},
     rotate: () => {},
     restart: () => {},
+    currentMap: () => {
+      return [];
+    },
   });
 
   const { board, ...boardContext } = useContext(BoardContext);
+
+  const [a, setA] = useState(false);
+
+  useEffect(() => {
+    console.log(a);
+    if (a === true) {
+      boardContext.addPieceToBoard(activePieceState.maps[Z], X, Y, color);
+      setA(false);
+
+      return () => {
+        restartPiece();
+      };
+    }
+  }, [a]);
 
   function movePieceRight(): void {
     activePieceDispatch({
@@ -216,7 +203,12 @@ export default function ActivePieceContextProvider({
   function movePieceDown(): void {
     activePieceDispatch({
       type: "MOVE_DOWN",
-      payload: { board: board, addPieceToBoard: boardContext.addPieceToBoard },
+      payload: {
+        board: board,
+        addPieceToBoard: () => {
+          setA(true);
+        },
+      },
     });
   }
 
@@ -237,12 +229,14 @@ export default function ActivePieceContextProvider({
     positionX: X,
     positionY: Y,
     positionZ: Z,
-    currentPieceMap: currentPieceMap,
     moveRight: movePieceRight,
     moveLeft: movePieceLeft,
     moveDown: movePieceDown,
     rotate: rotatePiece,
     restart: restartPiece,
+    currentMap: () => {
+      return activePieceState.maps[Z];
+    },
   };
 
   return (
