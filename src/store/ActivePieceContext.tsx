@@ -182,11 +182,8 @@ export default function ActivePieceContextProvider({
   useEffect(() => {
     if (addPieceToBoard) {
       boardContext.addPieceToBoard(activePieceState.maps[Z], X, Y, color);
+      restartPiece();
       setAddPieceToBoard(false);
-
-      return () => {
-        restartPiece();
-      };
     }
   }, [addPieceToBoard]);
 

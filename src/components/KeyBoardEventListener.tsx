@@ -24,7 +24,11 @@ export default function KeyBoardEventListener() {
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown, false);
-  }, []);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, false);
+    };
+  });
 
   return <></>;
 }
