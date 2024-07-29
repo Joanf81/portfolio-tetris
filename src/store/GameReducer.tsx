@@ -75,11 +75,10 @@ export function gameReducer(state: GameContextType, action: gameActionType) {
         if (Y <= 1) {
           // setGameState("GAME OVER");
         } else {
-          return {
-            ...state,
-            board: addPieceToBoard(activePiece, board),
-            activePiece: getResetedActivePiece(),
-          };
+          const newBoard = addPieceToBoard(activePiece, board);
+          const newActivePiece = getResetedActivePiece();
+
+          return { ...state, board: newBoard, activePiece: newActivePiece };
         }
       } else {
         return { ...state, activePiece: { ...activePiece, positionY: Y + 1 } };
@@ -87,15 +86,13 @@ export function gameReducer(state: GameContextType, action: gameActionType) {
       break;
 
     case "ROTATE":
-      const nextMap: PieceMap = maps[nextPositionZ(Z)];
+      const nextZ = nextPositionZ(Z);
+      const nextMap: PieceMap = maps[nextZ];
       const borderDistance = boardColsNumber - 1 - (X + nextMap[0].length);
 
       // If there is no collision against right border and against any piece
       if (borderDistance >= 0 && !pieceCollision(board, nextMap, X, Y, {})) {
-        return {
-          ...state,
-          activePiece: { ...activePiece, positionZ: nextPositionZ(Z) },
-        };
+        return { ...state, activePiece: { ...activePiece, positionZ: nextZ } };
       } else if (borderDistance < 0) {
         if (
           !pieceCollision(board, nextMap, X, Y, { incrementX: borderDistance })
@@ -105,7 +102,7 @@ export function gameReducer(state: GameContextType, action: gameActionType) {
             activePiece: {
               ...activePiece,
               positionX: X + borderDistance,
-              positionZ: nextPositionZ(Z),
+              positionZ: nextZ,
             },
           };
         }
