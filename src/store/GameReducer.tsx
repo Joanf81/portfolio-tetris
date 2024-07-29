@@ -5,8 +5,8 @@ import { GameContextType } from "./GameContext";
 import { addPieceToBoard, copyBoard, emptyBoardLine } from "../lib/board";
 import { PieceMap, getResetedActivePiece, nextPositionZ } from "../lib/piece";
 import {
-  isCollisionAgainstBoardLimit as boardCollision,
-  isCollisionAgainstPiece as pieceCollision,
+  checkCollisionAgainstBoardLimit as boardCollision,
+  checkCollisionAgainstPiece as pieceCollision,
 } from "../lib/collisions";
 
 type setGameStateRunning = { type: "SET_RUNNING" };
@@ -54,22 +54,22 @@ export function gameReducer(state: GameContextType, action: gameActionType) {
     case "MOVE_RIGHT":
       if (
         X + maps[Z][0].length < boardColsNumber - 1 &&
-        !pieceCollision(board, maps[Z], X, Y, { incrementX: 1 })
+        !pieceCollision(board, activePiece, { incrementX: 1 })
       ) {
         return { ...state, activePiece: { ...activePiece, positionX: X + 1 } };
       }
       break;
 
     case "MOVE_LEFT":
-      if (X > 1 && !pieceCollision(board, maps[Z], X, Y, { incrementX: -1 })) {
+      if (X > 1 && !pieceCollision(board, activePiece, { incrementX: -1 })) {
         return { ...state, activePiece: { ...activePiece, positionX: X - 1 } };
       }
       break;
 
     case "MOVE_DOWN":
       if (
-        boardCollision(maps[Z], Y) ||
-        pieceCollision(board, maps[Z], X, Y, { incrementY: 1 })
+        boardCollision(activePiece) ||
+        pieceCollision(board, activePiece, { incrementY: 1 })
       ) {
         // Collision against top limit
         if (Y <= 1) {
@@ -91,11 +91,11 @@ export function gameReducer(state: GameContextType, action: gameActionType) {
       const borderDistance = boardColsNumber - 1 - (X + nextMap[0].length);
 
       // If there is no collision against right border and against any piece
-      if (borderDistance >= 0 && !pieceCollision(board, nextMap, X, Y, {})) {
+      if (borderDistance >= 0 && !pieceCollision(board, activePiece, {})) {
         return { ...state, activePiece: { ...activePiece, positionZ: nextZ } };
       } else if (borderDistance < 0) {
         if (
-          !pieceCollision(board, nextMap, X, Y, { incrementX: borderDistance })
+          !pieceCollision(board, activePiece, { incrementX: borderDistance })
         ) {
           return {
             ...state,

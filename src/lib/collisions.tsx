@@ -1,24 +1,24 @@
 import { boardRowsNumber } from "../config";
 import { Hash } from "./types";
 import { BoardType } from "./board";
-import { PieceMap } from "./piece";
+import { ActivePiece } from "./piece";
 
-export function isCollisionAgainstPiece(
+export function checkCollisionAgainstPiece(
   board: BoardType,
-  activePieceMap: PieceMap,
-  pieceX: number,
-  pieceY: number,
+  activePiece: ActivePiece,
   increments: Hash<"incrementX" | "incrementY", number>
 ): boolean {
   let collision = false;
+
+  const { positionX: pieceX, positionY: pieceY } = activePiece;
+  const activePieceMap = activePiece.maps[activePiece.positionZ];
 
   const incrementX = increments["incrementX"] || 0;
   const incrementY = increments["incrementY"] || 0;
 
   activePieceMap.forEach((row, y) => {
-    if (collision) {
-      return;
-    }
+    if (collision) return;
+
     row.forEach((block, x) => {
       if (block === "X") {
         if (
@@ -34,11 +34,11 @@ export function isCollisionAgainstPiece(
   return collision;
 }
 
-export function isCollisionAgainstBoardLimit(
-  activePieceMap: PieceMap,
-  pieceY: number
+export function checkCollisionAgainstBoardLimit(
+  activePiece: ActivePiece
 ): boolean {
+  const activePieceMap = activePiece.maps[activePiece.positionZ];
   const pieceYSize = activePieceMap.length;
 
-  return pieceY + pieceYSize >= boardRowsNumber - 1;
+  return activePiece.positionY + pieceYSize >= boardRowsNumber - 1;
 }
