@@ -21,6 +21,7 @@ import {
 } from "../lib/collisions";
 import { BoardContext } from "./BoardContext";
 import { boardColsNumber } from "../config";
+import { log } from "../log.js";
 
 interface ActivePieceContextType {
   maps: pieceMapListType;
@@ -161,6 +162,8 @@ function activePieceReducer(
 export default function ActivePieceContextProvider({
   children,
 }: PropsWithChildren) {
+  log("<ActivePieceContextProvider /> rendered", 0);
+
   const [
     { color, positionX: X, positionY: Y, positionZ: Z, ...activePieceState },
     activePieceDispatch,

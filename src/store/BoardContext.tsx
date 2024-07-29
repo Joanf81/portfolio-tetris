@@ -1,6 +1,7 @@
 import { PropsWithChildren, createContext, useEffect, useReducer } from "react";
 import { PieceColor, PieceMap, blockType, boardType, X } from "../types";
 import { boardColsNumber, boardRowsNumber } from "../config";
+import { log } from "../log.js";
 
 // function addWallToBoard() {
 //   const board = emptyBoard.map((row, y) => {
@@ -129,6 +130,8 @@ function boardReducer(
 }
 
 export default function BoardContextProvider({ children }: PropsWithChildren) {
+  log("<BoardContextProvider /> rendered", 0);
+
   const [boardState, boardDispatch] = useReducer(boardReducer, {
     board: createEmptyBoard(),
     emptyBoard: emptyBoard,

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { forwardRef, useContext, useImperativeHandle, useState } from "react";
 import { useRef, useEffect } from "react";
 
 import { refreshRate } from "../config";
@@ -11,10 +11,19 @@ import PausedScreen from "../components/PausedScreen";
 import { BoardContext } from "../store/BoardContext";
 import { ActivePieceContext } from "../store/ActivePieceContext";
 import KeyBoardEventListener from "./KeyBoardEventListener";
+import { log } from "../log.js";
 
 type gameStateType = "INITIAL" | "RUNNING" | "PAUSED" | "GAME OVER";
 
-function Game() {
+export interface GameHandle {
+  setGameOver: () => void;
+}
+
+interface GameProps {}
+
+const Game = forwardRef<GameHandle, GameProps>(({}, ref) => {
+  log("<Game /> rendered", 1);
+
   const gameTimerID = useRef<number>(0);
 
   const [gameState, setGameState] = useState<gameStateType>("INITIAL");
@@ -22,6 +31,12 @@ function Game() {
 
   const boardContext = useContext(BoardContext);
   const activePieceContext = useContext(ActivePieceContext);
+
+  useImperativeHandle(ref, () => ({
+    setGameOver() {
+      setGameState("GAME OVER");
+    },
+  }));
 
   useEffect(() => {
     switch (gameState) {
@@ -38,15 +53,15 @@ function Game() {
     }
   }, [gameState]);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      activePieceContext.moveDown();
-    }, refreshRate);
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     activePieceContext.moveDown();
+  //   }, refreshRate);
 
-    return () => {
-      clearInterval(timer);
-    };
-  }, [activePieceContext.positionY]);
+  //   return () => {
+  //     clearInterval(timer);
+  //   };
+  // }, [activePieceContext.positionY]);
 
   useEffect(() => {
     setGameState("RUNNING");
@@ -55,19 +70,18 @@ function Game() {
   return (
     <div tabIndex={1} className="bg-white">
       <KeyBoardEventListener />
-      <Board>
-        <GameOverScreen
-          show={gameState == "GAME OVER"}
-          restartGame={() => setGameState("RUNNING")}
-        />
-        <PausedScreen
-          show={gameState == "PAUSED"}
-          resumeGame={() => setGameState("RUNNING")}
-        />
-        <ActivePiece />
-      </Board>
+      <GameOverScreen
+        show={gameState == "GAME OVER"}
+        restartGame={() => setGameState("RUNNING")}
+      />
+      <PausedScreen
+        show={gameState == "PAUSED"}
+        resumeGame={() => setGameState("RUNNING")}
+      />
+      <Board></Board>
+      <ActivePiece />
     </div>
   );
-}
+});
 
 export default Game;

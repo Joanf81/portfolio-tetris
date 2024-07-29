@@ -1,3 +1,5 @@
+import { log } from "../log.js";
+
 interface PausedScreenProps {
   show: boolean;
   resumeGame(): void;

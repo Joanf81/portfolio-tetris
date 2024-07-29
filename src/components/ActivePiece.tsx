@@ -4,8 +4,11 @@ import { X } from "../types";
 import Block from "./Block";
 import { useContext } from "react";
 import { ActivePieceContext } from "../store/ActivePieceContext";
+import { log } from "../log.js";
 
 export default function ActivePiece() {
+  log("<ActivePiece /> rendered", 3);
+
   const activePieceContext = useContext(ActivePieceContext);
 
   const x = activePieceContext.positionX * blockSize;

@@ -1,3 +1,5 @@
+import { log } from "../log.js";
+
 interface GameOverScreenProps {
   show: boolean;
   restartGame(): void;

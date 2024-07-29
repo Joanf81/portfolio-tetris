@@ -3,8 +3,11 @@ import { PropsWithChildren, useContext } from "react";
 import { boardColsNumber as colsNumber } from "../config";
 import Block from "./Block";
 import { BoardContext } from "../store/BoardContext";
+import { log } from "../log.js";
 
 export default function Board({ children }: PropsWithChildren) {
+  log("<Board /> rendered", 2);
+
   const boardContext = useContext(BoardContext);
 
   const styleBoardSize = {
