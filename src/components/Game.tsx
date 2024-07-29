@@ -8,10 +8,9 @@ import Board from "../components/Board";
 import ActivePiece from "../components/ActivePiece";
 import GameOverScreen from "../components/GameOverScreen";
 import PausedScreen from "../components/PausedScreen";
-import { BoardContext } from "../store/BoardContext";
-import { ActivePieceContext } from "../store/ActivePieceContext";
 import KeyBoardEventListener from "./KeyBoardEventListener";
 import { log } from "../log.js";
+import { GameContext } from "../store/GameContext.js";
 
 type gameStateType = "INITIAL" | "RUNNING" | "PAUSED" | "GAME OVER";
 
@@ -29,21 +28,20 @@ const Game = forwardRef<GameHandle, GameProps>(({}, ref) => {
   const [gameState, setGameState] = useState<gameStateType>("INITIAL");
   const previousGameState = usePrevious(gameState);
 
-  const boardContext = useContext(BoardContext);
-  const activePieceContext = useContext(ActivePieceContext);
+  const gameContext = useContext(GameContext);
 
-  useImperativeHandle(ref, () => ({
-    setGameOver() {
-      setGameState("GAME OVER");
-    },
-  }));
+  // useImperativeHandle(ref, () => ({
+  //   setGameOver() {
+  //     setGameState("GAME OVER");
+  //   },
+  // }));
 
   useEffect(() => {
     switch (gameState) {
       case "RUNNING":
         if (previousGameState == "GAME OVER") {
-          boardContext.emptyBoard();
-          activePieceContext.restart();
+          // gameContext.emptyBoard();
+          // gameContext.restart();
         }
         break;
       case "PAUSED":
@@ -53,15 +51,15 @@ const Game = forwardRef<GameHandle, GameProps>(({}, ref) => {
     }
   }, [gameState]);
 
-  // useEffect(() => {
-  //   const timer = setInterval(() => {
-  //     activePieceContext.moveDown();
-  //   }, refreshRate);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      gameContext.movePieceDown();
+    }, refreshRate);
 
-  //   return () => {
-  //     clearInterval(timer);
-  //   };
-  // }, [activePieceContext.positionY]);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [gameContext.activePiece.positionY]);
 
   useEffect(() => {
     setGameState("RUNNING");
@@ -70,14 +68,14 @@ const Game = forwardRef<GameHandle, GameProps>(({}, ref) => {
   return (
     <div tabIndex={1} className="bg-white">
       <KeyBoardEventListener />
-      <GameOverScreen
+      {/* <GameOverScreen
         show={gameState == "GAME OVER"}
         restartGame={() => setGameState("RUNNING")}
       />
       <PausedScreen
         show={gameState == "PAUSED"}
         resumeGame={() => setGameState("RUNNING")}
-      />
+      /> */}
       <Board></Board>
       <ActivePiece />
     </div>
