@@ -2,7 +2,7 @@ import { boardColsNumber } from "../config";
 
 import { GameContextType } from "./GameContext";
 
-import { addPieceToBoard, copyBoard, emptyBoardLine } from "../lib/board";
+import { addPieceToBoard } from "../lib/board";
 import { PieceMap, getResetedActivePiece, nextPositionZ } from "../lib/piece";
 import {
   checkCollisionAgainstBoardLimit as boardCollision,
@@ -10,10 +10,6 @@ import {
 } from "../lib/collisions";
 
 type setGameStateRunning = { type: "SET_RUNNING" };
-type emptyLinesFromBoardAction = {
-  type: "EMPTY_LINE";
-  payload: { line: number };
-};
 type movePieceRightAction = {
   type: "MOVE_RIGHT";
 };
@@ -25,7 +21,6 @@ type rotatePieceAction = { type: "ROTATE" };
 
 type gameActionType =
   | setGameStateRunning
-  | emptyLinesFromBoardAction
   | movePieceRightAction
   | movePieceLeftAction
   | rotatePieceAction
@@ -39,15 +34,6 @@ export function gameReducer(state: GameContextType, action: gameActionType) {
     // case "EMPTY_BOARD":
     //   board = createEmptyBoard();
     //   break;
-
-    case "EMPTY_LINE":
-      const boardCopy = copyBoard(state.board);
-      const { line } = action.payload;
-
-      boardCopy.splice(line, 1);
-      boardCopy.splice(1, 0, emptyBoardLine);
-
-      return { ...state, board: boardCopy };
 
     case "MOVE_RIGHT":
       if (

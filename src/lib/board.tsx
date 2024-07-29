@@ -56,5 +56,20 @@ export function addPieceToBoard(
     });
   });
 
-  return boardCopy;
+  return detectAndRemoveCompletedLines(boardCopy);
+}
+
+function detectAndRemoveCompletedLines(board: BoardType): BoardType {
+  let boardCopy = null;
+
+  board.forEach((row, rowIndex) => {
+    const rowWithoutBorders = row.slice(1, row.length - 1);
+    if (rowWithoutBorders.every((e) => e != "border" && e != "empty")) {
+      boardCopy ||= copyBoard(board);
+      boardCopy.splice(rowIndex, 1);
+      boardCopy.splice(1, 0, emptyBoardLine);
+    }
+  });
+
+  return boardCopy || board;
 }

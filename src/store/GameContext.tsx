@@ -1,4 +1,4 @@
-import { PropsWithChildren, createContext, useEffect, useReducer } from "react";
+import { PropsWithChildren, createContext, useReducer } from "react";
 
 import { gameReducer } from "./GameReducer";
 
@@ -47,16 +47,6 @@ export default function GameContextProvider({ children }: PropsWithChildren) {
     board: createEmptyBoard(),
     activePiece: getResetedActivePiece(),
   });
-
-  function detectAndRemoveCompletedLines() {
-    gameState.board.forEach((row, rowIndex) => {
-      const rowWithoutBorders = row.slice(1, row.length - 1);
-      if (rowWithoutBorders.every((e) => e != "border" && e != "empty"))
-        gameDispatch({ type: "EMPTY_LINE", payload: { line: rowIndex } });
-    });
-  }
-
-  useEffect(() => detectAndRemoveCompletedLines(), [gameState.board]);
 
   function movePieceRight(): void {
     gameDispatch({ type: "MOVE_RIGHT" });
