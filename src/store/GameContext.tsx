@@ -10,11 +10,13 @@ import {
   PiecePositionZType,
 } from "../lib/piece";
 
-type GameState = "INITIAL" | "RUNNING" | "PAUSED" | "GAME OVER";
+type GameState = "INITIAL" | "STARTED" | "PAUSED" | "GAME_OVER";
 export interface GameContextType {
-  state: GameState;
+  gameState: GameState;
   board: BoardType;
   activePiece: ActivePiece;
+  startGame: () => void;
+  pauseGame: () => void;
   movePieceRight: () => void;
   movePieceLeft: () => void;
   movePieceDown: () => void;
@@ -23,7 +25,7 @@ export interface GameContextType {
 }
 
 const initialGameContext: GameContextType = {
-  state: "INITIAL",
+  gameState: "INITIAL",
   board: [],
   activePiece: {
     maps: { 0: [], 1: [], 2: [], 3: [] },
@@ -32,6 +34,8 @@ const initialGameContext: GameContextType = {
     positionY: 0,
     positionZ: PiecePositionZType.UP,
   },
+  startGame: () => {},
+  pauseGame: () => {},
   movePieceRight: () => {},
   movePieceLeft: () => {},
   movePieceDown: () => {},
@@ -47,6 +51,14 @@ export default function GameContextProvider({ children }: PropsWithChildren) {
     board: createEmptyBoard(),
     activePiece: getResetedActivePiece(),
   });
+
+  function startGame(): void {
+    gameDispatch({ type: "START_GAME" });
+  }
+
+  function pauseGame(): void {
+    gameDispatch({ type: "PAUSE_GAME" });
+  }
 
   function movePieceRight(): void {
     gameDispatch({ type: "MOVE_RIGHT" });
@@ -65,9 +77,11 @@ export default function GameContextProvider({ children }: PropsWithChildren) {
   }
 
   const gameStateValue = {
-    state: gameState.state,
+    gameState: gameState.gameState,
     board: gameState.board,
     activePiece: gameState.activePiece,
+    startGame: startGame,
+    pauseGame: pauseGame,
     movePieceRight: movePieceRight,
     movePieceLeft: movePieceLeft,
     movePieceDown: movePieceDown,

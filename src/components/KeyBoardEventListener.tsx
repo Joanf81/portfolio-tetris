@@ -16,11 +16,7 @@ export default function KeyBoardEventListener() {
     } else if (e.code === "ArrowUp") {
       gameContext.rotatePiece();
     } else if (e.code === "KeyP") {
-      // if (gameState == "RUNNING") {
-      //   setGameState("PAUSED");
-      // } else if (gameState == "PAUSED") {
-      //   setGameState("RUNNING");
-      // }
+      gameContext.pauseGame();
     }
   }
 
