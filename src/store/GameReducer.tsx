@@ -73,7 +73,7 @@ export function gameReducer(
         pieceCollision(board, activePiece, { incrementY: 1 })
       ) {
         // Collision against top limit
-        if (Y <= 1) {
+        if (Y <= 0) {
           return { ...state, gameState: "GAME_OVER" };
         } else {
           const newBoard = addPieceToBoard(activePiece, board);

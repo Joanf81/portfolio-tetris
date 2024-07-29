@@ -114,8 +114,8 @@ export function nextPositionZ(positionZ: PiecePositionZType) {
 // Active piece generator
 export function getResetedActivePiece() {
   return {
-    positionX: 1,
-    positionY: 1,
+    positionX: 0,
+    positionY: 0,
     positionZ: PiecePositionZType.UP,
     color: randomPieceColor(),
     maps: randomPieceMap(),
