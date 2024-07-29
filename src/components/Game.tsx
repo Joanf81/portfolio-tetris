@@ -16,10 +16,13 @@ export default function Game() {
   log("<Game /> rendered", 1);
 
   const gameTimerID = useRef<number>(0);
-  const gameContext = useContext(GameContext);
+  const { gameState, startGame, ...gameContext } = useContext(GameContext);
+
+  const isPaused = gameState === "PAUSED";
+  const isGameOver = gameState === "GAME_OVER";
 
   useEffect(() => {
-    if (gameContext.gameState === "STARTED") {
+    if (gameState === "STARTED") {
       gameTimerID.current = setInterval(() => {
         // gameContext.movePieceDown();
       }, refreshRate);
@@ -28,10 +31,10 @@ export default function Game() {
     return () => {
       clearInterval(gameTimerID.current);
     };
-  }, [gameContext.activePiece.positionY, gameContext.gameState]);
+  }, [gameContext.activePiece.positionY, gameState]);
 
   useEffect(() => {
-    gameContext.startGame();
+    startGame();
   }, []);
 
   return (
@@ -40,8 +43,8 @@ export default function Game() {
       <Background>
         <Board>
           <ActivePiece />
-          <GameOverScreen />
-          <PausedScreen />
+          {isGameOver && <GameOverScreen onRestart={startGame} />}
+          {isPaused && <PausedScreen onRestart={startGame} />}
         </Board>
       </Background>
     </div>
