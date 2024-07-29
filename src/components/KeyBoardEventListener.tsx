@@ -1,26 +1,26 @@
 import { useContext, useEffect } from "react";
-import { ActivePieceContext } from "../store/ActivePieceContext";
 import { log } from "../log.js";
+import { GameContext } from "../store/GameContext.js";
 
 export default function KeyBoardEventListener() {
-  const activePieceContext = useContext(ActivePieceContext);
+  const gameContext = useContext(GameContext);
   log("<KeyBoardEventListener /> rendered", 2);
 
   function handleKeyDown(e: KeyboardEvent): any {
     if (e.code === "ArrowRight") {
-      activePieceContext.moveRight();
+      gameContext.movePieceRight();
     } else if (e.code === "ArrowLeft") {
-      activePieceContext.moveLeft();
-    } else if (e.code === "ArrowUp") {
-      activePieceContext.rotate();
+      gameContext.movePieceLeft();
     } else if (e.code === "ArrowDown") {
-      activePieceContext.moveDown();
+      gameContext.movePieceDown();
+    } else if (e.code === "ArrowUp") {
+      gameContext.rotatePiece();
     } else if (e.code === "KeyP") {
-      if (gameState == "RUNNING") {
-        setGameState("PAUSED");
-      } else if (gameState == "PAUSED") {
-        setGameState("RUNNING");
-      }
+      // if (gameState == "RUNNING") {
+      //   setGameState("PAUSED");
+      // } else if (gameState == "PAUSED") {
+      //   setGameState("RUNNING");
+      // }
     }
   }
 

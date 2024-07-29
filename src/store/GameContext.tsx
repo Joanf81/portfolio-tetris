@@ -199,7 +199,10 @@ function gameReducer(state: GameContextType, action: gameActionType) {
 
       // If there is no collision against right border and against any piece
       if (borderDistance >= 0 && !pieceCollision(board, nextMap, X, Y, {})) {
-        return { ...state, positionZ: nextPositionZ(Z) };
+        return {
+          ...state,
+          activePiece: { ...activePiece, positionZ: nextPositionZ(Z) },
+        };
       } else if (borderDistance < 0) {
         if (
           !pieceCollision(board, nextMap, X, Y, { incrementX: borderDistance })
@@ -230,7 +233,11 @@ function gameReducer(state: GameContextType, action: gameActionType) {
 }
 
 export default function GameContextProvider({ children }: PropsWithChildren) {
-  const [gameState, gameDispatch] = useReducer(gameReducer, initialGameContext);
+  const [gameState, gameDispatch] = useReducer(gameReducer, {
+    ...initialGameContext,
+    board: createEmptyBoard(),
+    activePiece: getResetedActivePiece(),
+  });
 
   function detectAndRemoveCompletedLines() {
     gameState.board.forEach((row, rowIndex) => {
