@@ -50,7 +50,7 @@ function detectAndRemoveCompletedLines(board: BoardType): BoardType {
   let boardCopy = null;
 
   board.forEach((row, rowIndex) => {
-    if (row.every((e) => e != "border" && e != "empty")) {
+    if (row.every((e) => e != "empty")) {
       boardCopy ||= copyBoard(board);
       boardCopy.splice(rowIndex, 1);
       boardCopy.splice(1, 0, emptyBoardLine);
