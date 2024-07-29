@@ -1,12 +1,6 @@
 import { PropsWithChildren, createContext, useEffect, useReducer } from "react";
 import { boardColsNumber } from "../config";
-import {
-  PieceColor,
-  PieceMap,
-  PiecePositionZType,
-  pieceMapListType,
-} from "../types";
-import { nextPositionZ, randomPieceColor, randomPieceMap } from "../lib/pieces";
+import { PieceMap, PiecePositionZType, nextPositionZ } from "../lib/piece";
 import {
   isCollisionAgainstBoardLimit as boardCollision,
   isCollisionAgainstPiece as pieceCollision,
@@ -18,26 +12,9 @@ import {
   createEmptyBoard,
   emptyBoardLine,
 } from "../lib/board";
-
-function getResetedActivePiece() {
-  return {
-    positionX: 1,
-    positionY: 1,
-    positionZ: PiecePositionZType.UP,
-    color: randomPieceColor(),
-    maps: randomPieceMap(),
-  };
-}
+import { ActivePiece, getResetedActivePiece } from "../lib/piece";
 
 type GameState = "INITIAL" | "RUNNING" | "PAUSED" | "GAME OVER";
-interface ActivePiece {
-  maps: pieceMapListType;
-  color: PieceColor;
-  positionX: number;
-  positionY: number;
-  positionZ: PiecePositionZType;
-}
-
 export interface GameContextType {
   state: GameState;
   board: BoardType;

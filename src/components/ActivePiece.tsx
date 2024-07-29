@@ -1,5 +1,5 @@
 import { blockSize } from "./../config";
-import { X } from "../types";
+import { X } from "../lib/piece";
 
 import Block from "./Block";
 import { useContext } from "react";

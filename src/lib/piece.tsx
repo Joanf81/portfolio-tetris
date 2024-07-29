@@ -1,15 +1,44 @@
-import {
-  O,
-  PieceMap,
-  X,
-  pieceMapListType,
-  PieceColor,
-  colorList,
-  PiecePositionZType,
-} from "../types";
+export interface ActivePiece {
+  maps: pieceMapListType;
+  color: PieceColor;
+  positionX: number;
+  positionY: number;
+  positionZ: PiecePositionZType;
+}
 
-// Piece maps
+// Piece map:
+export const X = "X";
+export const O = "O";
 
+export type Piece = "X" | "O";
+export type PieceMap = Piece[][];
+export type pieceMapListType = {
+  [key in PiecePositionZType]: PieceMap;
+};
+
+// Position Z:
+export enum PiecePositionZType {
+  UP,
+  RIGHT,
+  DOWN,
+  LEFT,
+}
+
+// Color:
+export const colorList = [
+  "red",
+  "orange",
+  "green",
+  "emerald",
+  "light-blue",
+  "dark-blue",
+  "yellow",
+  "pink",
+  "purple",
+];
+export type PieceColor = (typeof colorList)[number];
+
+// Piece maps:
 const pieceSquare: PieceMap = [
   [X, X],
   [X, X],
@@ -83,8 +112,18 @@ export function nextPositionZ(positionZ: PiecePositionZType) {
   }
 }
 
-// Secondary unctions:
+// Active piece generator
+export function getResetedActivePiece() {
+  return {
+    positionX: 1,
+    positionY: 1,
+    positionZ: PiecePositionZType.UP,
+    color: randomPieceColor(),
+    maps: randomPieceMap(),
+  };
+}
 
+// Matrix manipulation functions:
 function copyMatrix(matrix: PieceMap) {
   return matrix.map((arr) => {
     return arr.slice();

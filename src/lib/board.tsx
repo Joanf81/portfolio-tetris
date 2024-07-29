@@ -1,5 +1,5 @@
 import { boardColsNumber, boardRowsNumber } from "../config";
-import { PieceColor } from "../types";
+import { ActivePiece, PieceColor } from "./piece";
 
 export type BlockType = PieceColor | "empty" | "border";
 export type BoardType = BlockType[][];

@@ -1,5 +1,5 @@
 import { blockSize } from "./../config";
-import { TaildWindClass } from "../types";
+import { TaildWindClass } from "../lib/types.js";
 import { log } from "../log.js";
 import { BlockType } from "../lib/board.js";
 
