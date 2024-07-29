@@ -1,8 +1,9 @@
 import { boardRowsNumber } from "../config";
-import { Hash, PieceMap, boardType } from "../types";
+import { Hash, PieceMap } from "../types";
+import { BoardType } from "./board";
 
 export function isCollisionAgainstPiece(
-  board: boardType,
+  board: BoardType,
   activePieceMap: PieceMap,
   pieceX: number,
   pieceY: number,

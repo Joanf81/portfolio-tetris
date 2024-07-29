@@ -29,11 +29,6 @@ export const colorList = [
 ];
 export type PieceColor = (typeof colorList)[number];
 
-export type blockType = PieceColor | "empty" | "border";
-
-// Board
-export type boardType = blockType[][];
-
 // Other
 export type TaildWindClass = string;
 

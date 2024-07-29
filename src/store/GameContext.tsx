@@ -1,11 +1,9 @@
 import { PropsWithChildren, createContext, useEffect, useReducer } from "react";
-import { boardColsNumber, boardRowsNumber } from "../config";
+import { boardColsNumber } from "../config";
 import {
   PieceColor,
   PieceMap,
   PiecePositionZType,
-  blockType,
-  boardType,
   pieceMapListType,
 } from "../types";
 import { nextPositionZ, randomPieceColor, randomPieceMap } from "../lib/pieces";
@@ -13,43 +11,13 @@ import {
   isCollisionAgainstBoardLimit as boardCollision,
   isCollisionAgainstPiece as pieceCollision,
 } from "../lib/collisions";
-
-function copyBoard(board: boardType) {
-  return board.map((arr) => {
-    return arr.slice();
-  });
-}
-
-const emptyBoardLine: Array<blockType> = [];
-
-for (let i = 0; i < boardColsNumber; i++) {
-  if (i === 0 || i === boardColsNumber - 1) {
-    emptyBoardLine.push("border");
-  } else {
-    emptyBoardLine.push("empty");
-  }
-}
-
-function createEmptyBoard(): boardType {
-  const emptyBoard: blockType[][] = [];
-
-  for (let y = 0; y < boardRowsNumber; y++) {
-    emptyBoard[y] = [];
-    for (let x = 0; x < boardColsNumber; x++) {
-      if (
-        y == 0 ||
-        x == 0 ||
-        y == boardRowsNumber - 1 ||
-        x == boardColsNumber - 1
-      ) {
-        emptyBoard[y][x] = "border";
-      } else {
-        emptyBoard[y][x] = "empty";
-      }
-    }
-  }
-  return emptyBoard;
-}
+import {
+  BoardType,
+  addPieceToBoard,
+  copyBoard,
+  createEmptyBoard,
+  emptyBoardLine,
+} from "../lib/board";
 
 function getResetedActivePiece() {
   return {
@@ -59,24 +27,6 @@ function getResetedActivePiece() {
     color: randomPieceColor(),
     maps: randomPieceMap(),
   };
-}
-
-function addPieceToBoard(
-  activePiece: ActivePiece,
-  board: boardType
-): boardType {
-  const boardCopy = copyBoard(board);
-  const { maps, positionX: X, positionY: Y, positionZ: Z, color } = activePiece;
-
-  maps[Z].forEach((row, posY) => {
-    row.forEach((piece, poxX) => {
-      if (piece === "X") {
-        boardCopy[Y + posY][X + poxX] = color;
-      }
-    });
-  });
-
-  return boardCopy;
 }
 
 type GameState = "INITIAL" | "RUNNING" | "PAUSED" | "GAME OVER";
@@ -90,7 +40,7 @@ interface ActivePiece {
 
 export interface GameContextType {
   state: GameState;
-  board: boardType;
+  board: BoardType;
   activePiece: ActivePiece;
   movePieceRight: () => void;
   movePieceLeft: () => void;
