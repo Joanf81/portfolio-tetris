@@ -186,7 +186,11 @@ function gameReducer(state: GameContextType, action: gameActionType) {
         if (Y <= 1) {
           // setGameState("GAME OVER");
         } else {
-          return { ...state, board: addPieceToBoard(activePiece, board) };
+          return {
+            ...state,
+            board: addPieceToBoard(activePiece, board),
+            activePiece: getResetedActivePiece(),
+          };
         }
       } else {
         return { ...state, activePiece: { ...activePiece, positionY: Y + 1 } };
