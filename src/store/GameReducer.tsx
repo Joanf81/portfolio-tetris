@@ -22,7 +22,6 @@ type movePieceDownAction = {
   type: "MOVE_DOWN";
 };
 type rotatePieceAction = { type: "ROTATE" };
-type restartPieceAction = { type: "RESTART" };
 
 type gameActionType =
   | setGameStateRunning
@@ -30,8 +29,7 @@ type gameActionType =
   | movePieceRightAction
   | movePieceLeftAction
   | rotatePieceAction
-  | movePieceDownAction
-  | restartPieceAction;
+  | movePieceDownAction;
 
 export function gameReducer(state: GameContextType, action: gameActionType) {
   const { board, activePiece } = state;
@@ -108,9 +106,6 @@ export function gameReducer(state: GameContextType, action: gameActionType) {
         }
       }
       break;
-
-    case "RESTART":
-      return { ...state, activePiece: getResetedActivePiece() };
   }
   // case "SET_RUNNING":
   //   if (state.state == "GAME OVER") {

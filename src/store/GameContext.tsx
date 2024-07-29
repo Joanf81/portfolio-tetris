@@ -19,7 +19,6 @@ export interface GameContextType {
   movePieceLeft: () => void;
   movePieceDown: () => void;
   rotatePiece: () => void;
-  restartPiece: () => void;
   currentPieceMap: () => PieceMap;
 }
 
@@ -37,7 +36,6 @@ const initialGameContext: GameContextType = {
   movePieceLeft: () => {},
   movePieceDown: () => {},
   rotatePiece: () => {},
-  restartPiece: () => {},
   currentPieceMap: () => [],
 };
 
@@ -76,10 +74,6 @@ export default function GameContextProvider({ children }: PropsWithChildren) {
     gameDispatch({ type: "ROTATE" });
   }
 
-  function restartPiece() {
-    gameDispatch({ type: "RESTART" });
-  }
-
   const gameStateValue = {
     state: gameState.state,
     board: gameState.board,
@@ -88,7 +82,6 @@ export default function GameContextProvider({ children }: PropsWithChildren) {
     movePieceLeft: movePieceLeft,
     movePieceDown: movePieceDown,
     rotatePiece: rotatePiece,
-    restartPiece: restartPiece,
     currentPieceMap: () => {
       return gameState.activePiece.maps[gameState.activePiece.positionZ];
     },
