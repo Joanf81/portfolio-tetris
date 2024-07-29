@@ -54,7 +54,7 @@ export function gameReducer(
 
     case "MOVE_RIGHT":
       if (
-        X + maps[Z][0].length < boardColsNumber - 1 &&
+        X + maps[Z][0].length < boardColsNumber &&
         !pieceCollision(board, activePiece, { incrementX: 1 })
       ) {
         return { ...state, activePiece: { ...activePiece, positionX: X + 1 } };
@@ -62,7 +62,7 @@ export function gameReducer(
       break;
 
     case "MOVE_LEFT":
-      if (X > 1 && !pieceCollision(board, activePiece, { incrementX: -1 })) {
+      if (X > 0 && !pieceCollision(board, activePiece, { incrementX: -1 })) {
         return { ...state, activePiece: { ...activePiece, positionX: X - 1 } };
       }
       break;
@@ -89,7 +89,7 @@ export function gameReducer(
     case "ROTATE":
       const nextZ = nextPositionZ(Z);
       const nextMap: PieceMap = maps[nextZ];
-      const borderDistance = boardColsNumber - 1 - (X + nextMap[0].length);
+      const borderDistance = boardColsNumber - (X + nextMap[0].length);
 
       // If there is no collision against right border and against any piece
       if (borderDistance >= 0 && !pieceCollision(board, activePiece, {})) {

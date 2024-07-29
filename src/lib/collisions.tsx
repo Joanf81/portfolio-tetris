@@ -40,5 +40,5 @@ export function checkCollisionAgainstBoardLimit(
   const activePieceMap = activePiece.maps[activePiece.positionZ];
   const pieceYSize = activePieceMap.length;
 
-  return activePiece.positionY + pieceYSize >= boardRowsNumber - 1;
+  return activePiece.positionY + pieceYSize >= boardRowsNumber;
 }

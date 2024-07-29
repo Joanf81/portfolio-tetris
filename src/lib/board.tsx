@@ -7,11 +7,7 @@ export type BoardType = BlockType[][];
 export const emptyBoardLine: Array<BlockType> = [];
 
 for (let i = 0; i < boardColsNumber; i++) {
-  if (i === 0 || i === boardColsNumber - 1) {
-    emptyBoardLine.push("border");
-  } else {
-    emptyBoardLine.push("empty");
-  }
+  emptyBoardLine.push("empty");
 }
 
 export function copyBoard(board: BoardType) {
@@ -26,16 +22,7 @@ export function createEmptyBoard(): BoardType {
   for (let y = 0; y < boardRowsNumber; y++) {
     emptyBoard[y] = [];
     for (let x = 0; x < boardColsNumber; x++) {
-      if (
-        y == 0 ||
-        x == 0 ||
-        y == boardRowsNumber - 1 ||
-        x == boardColsNumber - 1
-      ) {
-        emptyBoard[y][x] = "border";
-      } else {
-        emptyBoard[y][x] = "empty";
-      }
+      emptyBoard[y][x] = "empty";
     }
   }
   return emptyBoard;
@@ -63,8 +50,7 @@ function detectAndRemoveCompletedLines(board: BoardType): BoardType {
   let boardCopy = null;
 
   board.forEach((row, rowIndex) => {
-    const rowWithoutBorders = row.slice(1, row.length - 1);
-    if (rowWithoutBorders.every((e) => e != "border" && e != "empty")) {
+    if (row.every((e) => e != "border" && e != "empty")) {
       boardCopy ||= copyBoard(board);
       boardCopy.splice(rowIndex, 1);
       boardCopy.splice(1, 0, emptyBoardLine);
