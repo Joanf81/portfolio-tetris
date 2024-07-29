@@ -1,7 +1,7 @@
 import { blockSize } from "./../config";
 import { TaildWindClass } from "../lib/types.js";
 import { log } from "../log.js";
-import { BlockType } from "../lib/board.js";
+import { BlockType } from "../lib/block.js";
 
 interface BlockProps {
   type: BlockType;

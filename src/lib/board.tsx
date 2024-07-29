@@ -1,7 +1,7 @@
 import { boardColsNumber, boardRowsNumber } from "../config";
-import { ActivePiece, PieceColor } from "./piece";
+import { BlockType } from "./block";
+import { ActivePiece } from "./piece";
 
-export type BlockType = PieceColor | "empty" | "border";
 export type BoardType = BlockType[][];
 
 export const emptyBoardLine: Array<BlockType> = [];

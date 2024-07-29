@@ -1,5 +1,5 @@
 export interface ActivePiece {
-  maps: pieceMapListType;
+  maps: pieceMapList;
   color: PieceColor;
   positionX: number;
   positionY: number;
@@ -10,9 +10,8 @@ export interface ActivePiece {
 export const X = "X";
 export const O = "O";
 
-export type Piece = "X" | "O";
-export type PieceMap = Piece[][];
-export type pieceMapListType = {
+export type PieceMap = (typeof X | typeof O)[][];
+export type pieceMapList = {
   [key in PiecePositionZType]: PieceMap;
 };
 
@@ -25,7 +24,7 @@ export enum PiecePositionZType {
 }
 
 // Color:
-export const colorList = [
+const pieceColorList = [
   "red",
   "orange",
   "green",
@@ -36,7 +35,7 @@ export const colorList = [
   "pink",
   "purple",
 ];
-export type PieceColor = (typeof colorList)[number];
+export type PieceColor = (typeof pieceColorList)[number];
 
 // Piece maps:
 const pieceSquare: PieceMap = [
@@ -81,7 +80,7 @@ const listOfPieces = [
   pieceZ,
 ];
 
-const listOfMaps: Array<pieceMapListType> = listOfPieces.map((piece) => {
+const listOfMaps: Array<pieceMapList> = listOfPieces.map((piece) => {
   const rotated90 = rotateMatrix(piece);
   const rotated180 = rotateMatrix(rotated90);
   const rotated270 = rotateMatrix(rotated180);
@@ -89,13 +88,13 @@ const listOfMaps: Array<pieceMapListType> = listOfPieces.map((piece) => {
   return { 0: piece, 1: rotated90, 2: rotated180, 3: rotated270 };
 });
 
-export function randomPieceMap(): pieceMapListType {
+export function randomPieceMap(): pieceMapList {
   return listOfMaps[Math.floor(Math.random() * listOfMaps.length)];
 }
 
 // Colors
 export function randomPieceColor(): PieceColor {
-  return colorList[Math.floor(Math.random() * colorList.length)];
+  return pieceColorList[Math.floor(Math.random() * pieceColorList.length)];
 }
 
 // Rotations
@@ -123,7 +122,7 @@ export function getResetedActivePiece() {
   };
 }
 
-// Matrix manipulation functions:
+// Matrix functions:
 function copyMatrix(matrix: PieceMap) {
   return matrix.map((arr) => {
     return arr.slice();
