@@ -10,6 +10,7 @@ import PausedScreen from "../components/PausedScreen";
 import KeyBoardEventListener from "./KeyBoardEventListener";
 import { log } from "../log.js";
 import { GameContext } from "../store/GameContext.js";
+import Background from "./Background.js";
 
 export default function Game() {
   log("<Game /> rendered", 1);
@@ -20,7 +21,7 @@ export default function Game() {
   useEffect(() => {
     if (gameContext.gameState === "STARTED") {
       gameTimerID.current = setInterval(() => {
-        gameContext.movePieceDown();
+        // gameContext.movePieceDown();
       }, refreshRate);
     }
 
@@ -33,16 +34,16 @@ export default function Game() {
     gameContext.startGame();
   }, []);
 
-  console.log(gameContext.gameState);
-
   return (
     <div tabIndex={1} className="bg-white">
       <KeyBoardEventListener />
-      <Board>
-        <ActivePiece />
-        <GameOverScreen />
-        <PausedScreen />
-      </Board>
+      <Background>
+        <Board>
+          <ActivePiece />
+          <GameOverScreen />
+          <PausedScreen />
+        </Board>
+      </Background>
     </div>
   );
 }

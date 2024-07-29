@@ -7,7 +7,7 @@ import { log } from "../log.js";
 import { GameContext } from "../store/GameContext.js";
 
 export default function ActivePiece() {
-  log("<ActivePiece /> rendered", 3);
+  log("<ActivePiece /> rendered", 4);
 
   const { activePiece, currentPieceMap } = useContext(GameContext);
 
@@ -30,6 +30,7 @@ export default function ActivePiece() {
             if (piece === X) {
               return (
                 <Block
+                  key={`${rowIndex}-${colIndex}`}
                   absolute
                   positionX={colIndex}
                   positionY={rowIndex}

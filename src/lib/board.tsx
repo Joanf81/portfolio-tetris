@@ -4,11 +4,10 @@ import { ActivePiece } from "./piece";
 
 export type BoardType = BlockType[][];
 
-export const emptyBoardLine: Array<BlockType> = [];
-
-for (let i = 0; i < boardColsNumber; i++) {
-  emptyBoardLine.push("empty");
-}
+export const emptyBoardLine: Array<BlockType> = Array.from(
+  { length: boardColsNumber },
+  () => "empty"
+);
 
 export function copyBoard(board: BoardType) {
   return board.map((arr) => {
@@ -17,15 +16,7 @@ export function copyBoard(board: BoardType) {
 }
 
 export function createEmptyBoard(): BoardType {
-  const emptyBoard: BlockType[][] = [];
-
-  for (let y = 0; y < boardRowsNumber; y++) {
-    emptyBoard[y] = [];
-    for (let x = 0; x < boardColsNumber; x++) {
-      emptyBoard[y][x] = "empty";
-    }
-  }
-  return emptyBoard;
+  return Array.from({ length: boardRowsNumber }, () => emptyBoardLine);
 }
 
 export function addPieceToBoard(

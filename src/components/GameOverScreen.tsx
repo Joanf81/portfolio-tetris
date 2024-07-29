@@ -3,6 +3,8 @@ import { log } from "../log.js";
 import { GameContext } from "../store/GameContext.js";
 
 export default function GameOverScreen() {
+  log("<GameOverScreen /> rendered", 4);
+
   const gameContext = useContext(GameContext);
 
   if (gameContext.gameState != "GAME_OVER") return;

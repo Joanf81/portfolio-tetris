@@ -3,6 +3,7 @@ import { log } from "../log.js";
 import { GameContext } from "../store/GameContext.js";
 
 export default function PausedScreen() {
+  log("<PausedScreen /> rendered", 4);
   const gameContext = useContext(GameContext);
 
   if (gameContext.gameState != "PAUSED") return;
