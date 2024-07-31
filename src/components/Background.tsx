@@ -1,4 +1,4 @@
-import { PropsWithChildren, memo } from "react";
+import { memo } from "react";
 import {
   blockSize,
   boardRowsNumber as rowsNumber,
@@ -9,7 +9,7 @@ import { log } from "../log.js";
 import { BlockType } from "../lib/block.js";
 
 const Background = memo(
-  ({ children }: PropsWithChildren) => {
+  () => {
     log("<Background /> rendered", 2);
 
     const blocksPerRow = colsNumber + 2;
@@ -38,7 +38,6 @@ const Background = memo(
 
     return (
       <div className="relative w-[var(--board-width)]" style={styleBackground}>
-        {children}
         <div style={styleGridSize} className={`grid justify-start bg-black`}>
           {background.map((row, y) => {
             return row.map((blockType, x) => {

@@ -40,7 +40,7 @@ export default function Game() {
   return (
     <div tabIndex={1} className="bg-white">
       <KeyBoardEventListener />
-      <Background></Background>
+      <Background />
       <Board>
         <ActivePiece />
         {isPaused && <PausedScreen onRestart={startGame} />}
