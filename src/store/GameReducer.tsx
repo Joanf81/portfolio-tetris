@@ -49,8 +49,7 @@ export function gameReducer(
       return { ...state, gameState: "STARTED" };
 
     case "PAUSE_GAME":
-      if (gameState == "STARTED") return { ...state, gameState: "PAUSED" };
-      else return { ...state, gameState: "STARTED" };
+      return { ...state, gameState: "PAUSED" };
 
     case "MOVE_RIGHT":
       if (

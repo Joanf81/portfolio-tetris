@@ -24,7 +24,7 @@ export default function Game() {
   useEffect(() => {
     if (gameState === "STARTED") {
       gameTimerID.current = setInterval(() => {
-        // gameContext.movePieceDown();
+        gameContext.movePieceDown();
       }, refreshRate);
     }
 
