@@ -6,7 +6,7 @@ import { GameContext } from "../store/GameContext.js";
 import BoardBlocks from "./BoardBlocks.js";
 
 export default function Board({ children }: PropsWithChildren) {
-  log("<Board /> rendered", 3);
+  log("<Board /> rendered", 2);
 
   const { board } = useContext(GameContext);
 

@@ -16,7 +16,7 @@ export default function Block({
   positionX,
   positionY,
 }: BlockProps) {
-  log("<Block /> rendered", 5);
+  log("<Block /> rendered", 4);
 
   let absoluteClass: TaildWindClass = "";
   let colorClass: TaildWindClass = "";

@@ -7,7 +7,7 @@ import { log } from "../log.js";
 import { GameContext } from "../store/GameContext.js";
 
 export default function ActivePiece() {
-  log("<ActivePiece /> rendered", 4);
+  log("<ActivePiece /> rendered", 3);
 
   const { activePiece, currentPieceMap } = useContext(GameContext);
 
