@@ -3,7 +3,7 @@ import { Hash } from "./types";
 import { BoardType } from "./board";
 import { ActivePiece } from "./piece";
 
-export function checkCollisionAgainstPiece(
+export function checkPieceCollision(
   board: BoardType,
   activePiece: ActivePiece,
   increments: Hash<"incrementX" | "incrementY", number> = {}
@@ -34,11 +34,20 @@ export function checkCollisionAgainstPiece(
   return collision;
 }
 
-export function checkCollisionAgainstBoardLimit(
-  activePiece: ActivePiece
-): boolean {
+export function checkBoardLimitCollision(activePiece: ActivePiece): boolean {
   const activePieceMap = activePiece.maps[activePiece.positionZ];
   const pieceYSize = activePieceMap.length;
 
   return activePiece.positionY + pieceYSize >= boardRowsNumber;
+}
+
+export function checkCollision(
+  board: BoardType,
+  activePiece: ActivePiece,
+  increments: Hash<"incrementX" | "incrementY", number> = {}
+): boolean {
+  return (
+    checkBoardLimitCollision(activePiece) ||
+    checkPieceCollision(board, activePiece, increments)
+  );
 }

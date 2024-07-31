@@ -3,10 +3,10 @@ import { boardColsNumber } from "../config";
 import { GameContextType } from "./GameContext";
 
 import { addPieceToBoard, createEmptyBoard } from "../lib/board";
-import { PieceMap, getResetedActivePiece, nextPositionZ } from "../lib/piece";
+import { getResetedActivePiece, nextPositionZ } from "../lib/piece";
 import {
-  checkCollisionAgainstBoardLimit as boardCollision,
-  checkCollisionAgainstPiece as pieceCollision,
+  checkCollision,
+  checkPieceCollision as pieceCollision,
 } from "../lib/collisions";
 
 type setGameStateRunning = { type: "START_GAME" };
@@ -67,10 +67,7 @@ export function gameReducer(
       break;
 
     case "MOVE_DOWN":
-      if (
-        boardCollision(activePiece) ||
-        pieceCollision(board, activePiece, { incrementY: 1 })
-      ) {
+      if (checkCollision(board, activePiece, { incrementY: 1 })) {
         // Collision against top limit
         if (Y <= 0) {
           return { ...state, gameState: "GAME_OVER" };
@@ -91,7 +88,7 @@ export function gameReducer(
       const borderDistance = boardColsNumber - (X + maps[nextZ][0].length);
 
       // If there is no collision against right border and against any piece
-      if (borderDistance >= 0 && !pieceCollision(board, nextZActivePiece)) {
+      if (borderDistance >= 0 && !checkCollision(board, nextZActivePiece)) {
         return { ...state, activePiece: { ...activePiece, positionZ: nextZ } };
       } else if (borderDistance < 0) {
         if (
