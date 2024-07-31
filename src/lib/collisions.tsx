@@ -6,7 +6,7 @@ import { ActivePiece } from "./piece";
 export function checkCollisionAgainstPiece(
   board: BoardType,
   activePiece: ActivePiece,
-  increments: Hash<"incrementX" | "incrementY", number>
+  increments: Hash<"incrementX" | "incrementY", number> = {}
 ): boolean {
   let collision = false;
 

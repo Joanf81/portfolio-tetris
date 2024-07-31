@@ -87,11 +87,11 @@ export function gameReducer(
 
     case "ROTATE":
       const nextZ = nextPositionZ(Z);
-      const nextMap: PieceMap = maps[nextZ];
-      const borderDistance = boardColsNumber - (X + nextMap[0].length);
+      const nextZActivePiece = { ...activePiece, positionZ: nextZ };
+      const borderDistance = boardColsNumber - (X + maps[nextZ][0].length);
 
       // If there is no collision against right border and against any piece
-      if (borderDistance >= 0 && !pieceCollision(board, activePiece, {})) {
+      if (borderDistance >= 0 && !pieceCollision(board, nextZActivePiece)) {
         return { ...state, activePiece: { ...activePiece, positionZ: nextZ } };
       } else if (borderDistance < 0) {
         if (
