@@ -40,13 +40,12 @@ export default function Game() {
   return (
     <div tabIndex={1} className="bg-white">
       <KeyBoardEventListener />
-      <Background>
-        <Board>
-          <ActivePiece />
-          {isGameOver && <GameOverScreen onRestart={startGame} />}
-          {isPaused && <PausedScreen onRestart={startGame} />}
-        </Board>
-      </Background>
+      <Background></Background>
+      <Board>
+        <ActivePiece />
+        {isPaused && <PausedScreen onRestart={startGame} />}
+        {isGameOver && <GameOverScreen onRestart={startGame} />}
+      </Board>
     </div>
   );
 }

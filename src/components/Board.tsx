@@ -5,7 +5,7 @@ import { log } from "../log.js";
 import { GameContext } from "../store/GameContext.js";
 import BoardBlocks from "./BoardBlocks.js";
 
-const Board = memo(({ children }: PropsWithChildren) => {
+export default function Board({ children }: PropsWithChildren) {
   log("<Board /> rendered", 3);
 
   const { board } = useContext(GameContext);
@@ -21,6 +21,7 @@ const Board = memo(({ children }: PropsWithChildren) => {
   const styleGridSize = {
     gridTemplateColumns: `repeat(${colsNumber}, minmax(0, 1fr))`,
   } as React.CSSProperties;
+
   return (
     <div
       className="absolute top-[var(--block-size)] left-[var(--block-size)]"
@@ -34,6 +35,4 @@ const Board = memo(({ children }: PropsWithChildren) => {
       </div>
     </div>
   );
-});
-
-export default Board;
+}
